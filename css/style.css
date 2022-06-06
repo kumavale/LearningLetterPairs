@@ -1,0 +1,22 @@
+h2.underline {
+    border-bottom: solid 3px gray;
+}
+
+h3.underline {
+    border-bottom: solid 2px gray;
+}
+
+table.content {
+    width: 100%;
+}
+
+.content td {
+    padding: 16px 8px;
+    vertical-align: top;
+    background-color: #EEEEEE;
+}
+
+.content img {
+    width: 100%;
+}
+
