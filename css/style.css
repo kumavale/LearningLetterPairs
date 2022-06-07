@@ -20,3 +20,19 @@ table.content {
     width: 100%;
 }
 
+.flex_box {
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex_item {
+    padding: 8px;
+    margin: 2px;
+    background-color: #EEEEEE;
+}
+
+.flex_item img {
+    max-height: 256px;
+}
+

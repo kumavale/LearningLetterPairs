@@ -12,134 +12,81 @@
 
     <table>
         <tr>
-            <td><a href="#a">あ</a></td>
+            <td><a href="#A">あ</a></td>
             <td>|<td>
-            <td><a href="#i">い</a></td>
+            <td><a href="#I">い</a></td>
             <td>|<td>
-            <td><a href="#u">う</a></td>
+            <td><a href="#U">う</a></td>
             <td>|<td>
-            <td><a href="#e">え</a></td>
+            <td><a href="#E">え</a></td>
         </tr>
         <tr>
-            <td><a href="#ka">か</a></td>
+            <td><a href="#KA">か</a></td>
             <td>|<td>
-            <td><a href="#ki">き</a></td>
+            <td><a href="#KI">き</a></td>
             <td>|<td>
-            <td><a href="#ku">く</a></td>
+            <td><a href="#KU">く</a></td>
             <td>|<td>
-            <td><a href="#ke">け</a></td>
+            <td><a href="#KE">け</a></td>
         </tr>
         <tr>
-            <td><a href="#sa">さ</a></td>
+            <td><a href="#SA">さ</a></td>
             <td>|<td>
-            <td><a href="#si">し</a></td>
+            <td><a href="#SI">し</a></td>
             <td>|<td>
-            <td><a href="#su">す</a></td>
+            <td><a href="#SU">す</a></td>
             <td>|<td>
-            <td><a href="#se">せ</a></td>
+            <td><a href="#SE">せ</a></td>
         </tr>
         <tr>
-            <td><a href="#ta">た</a></td>
+            <td><a href="#TA">た</a></td>
             <td>|<td>
-            <td><a href="#ti">ち</a></td>
+            <td><a href="#TI">ち</a></td>
             <td>|<td>
-            <td><a href="#tu">つ</a></td>
+            <td><a href="#TU">つ</a></td>
             <td>|<td>
-            <td><a href="#te">て</a></td>
+            <td><a href="#TE">て</a></td>
         </tr>
         <tr>
-            <td><a href="#na">な</a></td>
+            <td><a href="#NA">な</a></td>
             <td>|<td>
-            <td><a href="#ni">に</a></td>
+            <td><a href="#NI">に</a></td>
             <td>|<td>
-            <td><a href="#nu">ぬ</a></td>
+            <td><a href="#NU">ぬ</a></td>
             <td>|<td>
-            <td><a href="#ne">ね</a></td>
+            <td><a href="#NE">ね</a></td>
         </tr>
         <tr>
-            <td><a href="#ha">は</a></td>
+            <td><a href="#HA">は</a></td>
             <td>|<td>
-            <td><a href="#hi">ひ</a></td>
+            <td><a href="#HI">ひ</a></td>
             <td>|<td>
-            <td><a href="#hu">ふ</a></td>
+            <td><a href="#HU">ふ</a></td>
             <td>|<td>
-            <td><a href="#he">へ</a></td>
+            <td><a href="#HE">へ</a></td>
         </tr>
     </table>
 
-    <h2 class="underline" id="a">あ</h2>
-    <table class="content">
-        <tr>
-            <td>
-                <h3 class="underline">ああ</h3>
+    <h2 class="underline" id="A">あ</h2>
+    <div class="flex_box">
+        {% for pair in list %}
+            <div class="flex_item">
+                <h3 class="underline">{{pair.name}}</h3>
                 <ul>
-                    <li>ああ</li>
-                    <li>test</li>
+                {% for obj in pair.objects %}
+                    <li>{{ obj }}</li>
+                {% endfor %}
                 </ul>
-                <img src="https://avatars.githubusercontent.com/u/29778890?v=4" />
-            </td>
-            <td>
-                <h3 class="underline">あい</h3>
-                <ul>
-                    <li>ああ</li>
-                    <li>test</li>
-                </ul>
-                <img src="https://avatars.githubusercontent.com/u/29778890?v=4" />
-            </td>
-            <td>
-                <h3 class="underline">あう</h3>
-                <ul>
-                    <li>ああ</li>
-                    <li>test</li>
-                </ul>
-                <img src="https://avatars.githubusercontent.com/u/29778890?v=4" />
-            </td>
-            <td>
-                <h3 class="underline">あえ</h3>
-                <ul>
-                    <li>ああ</li>
-                    <li>test</li>
-                </ul>
-                <img src="https://avatars.githubusercontent.com/u/29778890?v=4" />
-            </td>
-        </tr>
-        <tr>
-            <td><h3 class="underline">あか</h3></td>
-            <td><h3 class="underline">あき</h3></td>
-            <td><h3 class="underline">あく</h3></td>
-            <td><h3 class="underline">あけ</h3></td>
-        </tr>
-        <tr>
-            <td><h3 class="underline">あさ</h3></td>
-            <td><h3 class="underline">あし</h3></td>
-            <td><h3 class="underline">あす</h3></td>
-            <td><h3 class="underline">あせ</h3></td>
-        </tr>
-        <tr>
-            <td><h3 class="underline">あた</h3></td>
-            <td><h3 class="underline">あち</h3></td>
-            <td><h3 class="underline">あつ</h3></td>
-            <td><h3 class="underline">あて</h3></td>
-        </tr>
-        <tr>
-            <td><h3 class="underline">あな</h3></td>
-            <td><h3 class="underline">あに</h3></td>
-            <td><h3 class="underline">あぬ</h3></td>
-            <td><h3 class="underline">あね</h3></td>
-        </tr>
-        <tr>
-            <td><h3 class="underline">あは</h3></td>
-            <td><h3 class="underline">あひ</h3></td>
-            <td><h3 class="underline">あふ</h3></td>
-            <td><h3 class="underline">あへ</h3></td>
-        </tr>
-    </table>
+                <img src="static/img/{{pair.image}}" />
+            </div>
+        {% endfor %}
+    </div>
 
-    <h2 class="underline" id="i">い</h2>
+    <h2 class="underline" id="I">い</h2>
 
-    <h2 class="underline" id="u">う</h2>
+    <h2 class="underline" id="U">う</h2>
 
-    <h2 class="underline" id="e">え</h2>
+    <h2 class="underline" id="E">え</h2>
 
 </body>
 </html>
