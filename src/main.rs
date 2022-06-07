@@ -54,7 +54,10 @@ async fn list() -> Result<HttpResponse, Error> {
         LEFT JOIN
             hiragana
         ON
-            list.initial = hiragana.id")
+            list.initial = hiragana.id
+        ORDER BY
+            list.initial, list.next
+        ")
         .fetch_all(&pool).await.unwrap();
 
     let html = ListTemplate {
