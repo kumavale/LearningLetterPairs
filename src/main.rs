@@ -1,3 +1,5 @@
+#![feature(slice_group_by)]
+
 use actix_files as fs;
 use actix_web::{error, web, App, Error, HttpResponse, HttpServer};
 use askama::Template;
@@ -12,16 +14,17 @@ struct IndexTemplate {
 #[derive(Template)]
 #[template(path = "list.html")]
 struct ListTemplate {
-    list: Vec<LetterPair>,
+    lists: Vec<Vec<LetterPair>>,
 }
 
 #[derive(sqlx::FromRow, Clone, Debug)]
 struct LetterPair {
-    pub initial: String,
-    pub next:    String,
-    pub name:    String,
-    pub objects: Vec<String>,
-    pub image:   String,
+    pub initial:  String,
+    pub next:     String,
+    pub name:     String,
+    pub objects:  Vec<String>,
+    pub image:    String,
+    pub hiragana: String,
 }
 
 async fn index() -> Result<HttpResponse, Error> {
@@ -38,11 +41,24 @@ async fn list() -> Result<HttpResponse, Error> {
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect("postgres://postgres:postgres@localhost/letterpairs").await.unwrap();
-    let rows = sqlx::query_as::<_, LetterPair>("SELECT * from list")
+    let rows = sqlx::query_as::<_, LetterPair>("
+        SELECT
+            list.initial,
+            list.next,
+            list.name,
+            list.objects,
+            list.image,
+            hiragana.name AS hiragana
+        FROM
+            list
+        LEFT JOIN
+            hiragana
+        ON
+            list.initial = hiragana.id")
         .fetch_all(&pool).await.unwrap();
 
     let html = ListTemplate {
-        list: rows.iter().by_ref().take_while(|row|row.initial == "A").cloned().collect(),
+        lists: rows.group_by(|a, b| a.initial == b.initial).map(|list| list.to_vec()).collect(),
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()

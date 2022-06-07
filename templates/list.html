@@ -67,26 +67,22 @@
         </tr>
     </table>
 
-    <h2 class="underline" id="A">あ</h2>
-    <div class="flex_box">
-        {% for pair in list %}
-            <div class="flex_item">
-                <h3 class="underline">{{pair.name}}</h3>
-                <ul>
-                {% for obj in pair.objects %}
-                    <li>{{ obj }}</li>
-                {% endfor %}
-                </ul>
-                <img src="static/img/{{pair.image}}" />
-            </div>
-        {% endfor %}
-    </div>
-
-    <h2 class="underline" id="I">い</h2>
-
-    <h2 class="underline" id="U">う</h2>
-
-    <h2 class="underline" id="E">え</h2>
+    {% for list in lists %}
+        <h2 class="underline" id="{{ list[0].initial }}">{{ list[0].hiragana }}</h2>
+        <div class="flex_box">
+            {% for pair in list %}
+                <div class="flex_item">
+                    <h3 class="underline">{{pair.name}}</h3>
+                    <ul>
+                    {% for obj in pair.objects %}
+                        <li>{{ obj }}</li>
+                    {% endfor %}
+                    </ul>
+                    <img src="static/img/{{pair.image}}" />
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
 
 </body>
 </html>
