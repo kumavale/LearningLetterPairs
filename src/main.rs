@@ -56,7 +56,7 @@ async fn list() -> Result<HttpResponse, Error> {
         ON
             list.initial = hiragana.id
         ORDER BY
-            list.initial, list.next
+            list.name
         ")
         .fetch_all(&pool).await.unwrap();
 
