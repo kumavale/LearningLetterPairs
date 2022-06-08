@@ -77,7 +77,8 @@ async fn main() -> std::io::Result<()> {
             .route("/list", web::get().to(list))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
-        .bind("localhost:8080")?
+        //.bind("localhost:8080")?
+        .bind("192.168.10.101:8080")?
         .run()
         .await
 }
