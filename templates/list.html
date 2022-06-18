@@ -6,29 +6,34 @@
     <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
-    <h1>Learning Letter Pairs</h1>
+    <header>
+        <nav>
+            <h1><a href="/">Learning Letter Pairs</a></h1>
 
-    <h2>List of letter pairs</h2>
+            <h2>List of letter pairs</h2>
 
-    <table align="center" cellpadding="4px" cellspacing="0px" border="1px">
-        <tr>
-            <td bgcolor="#DDDDDD">
-                <p>
-                    <b>LP</b>
-                </p>
-            </td>
-            <td bgcolor="#EEEEEE">
-                <p>
-                {% for list in lists %}
-                    {% if loop.index != 1 %}
-                        |
-                    {% endif %}
-                    <a href="#{{ list[0].initial }}{{ list[0].next }}">{{ list[0].hiragana }}</a>
-                {% endfor %}
-                </p>
-            </td>
-        </tr>
-    </table>
+            <table align="center" cellpadding="4px" cellspacing="0px" border="1px">
+                <tr>
+                    <td bgcolor="#DDDDDD">
+                        <p>
+                            <b>LP</b>
+                        </p>
+                    </td>
+                    <td bgcolor="#EEEEEE">
+                        <p>
+                        {% for list in lists %}
+                            {% if loop.index != 1 %}
+                                |
+                            {% endif %}
+                            <a href="#{{ list[0].initial }}">{{ list[0].hiragana }}</a>
+                        {% endfor %}
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <hr />
+        </nav>
+    </header>
 
     {% for list in lists %}
         <h2 class="underline" id="{{ list[0].initial }}">{{ list[0].hiragana }}</h2>

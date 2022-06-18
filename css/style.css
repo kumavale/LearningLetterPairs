@@ -1,5 +1,18 @@
+body {
+    padding-top: 222px;
+}
+
+header {
+    background-color: white;
+    width: 100%;
+    top: 0;
+    position: fixed;
+}
+
 h2.underline {
     border-bottom: solid 3px gray;
+    padding-top: 230px;
+    margin-top: -230px;
 }
 
 h3.underline {
