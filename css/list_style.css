@@ -1,5 +1,5 @@
 body {
-    padding-top: 222px;
+    padding-top: 232px;
 }
 
 header {
@@ -11,8 +11,8 @@ header {
 
 h2.underline {
     border-bottom: solid 3px gray;
-    padding-top: 230px;
-    margin-top: -230px;
+    padding-top: 240px;
+    margin-top: -240px;
 }
 
 h3.underline {

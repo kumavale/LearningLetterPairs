@@ -17,6 +17,11 @@ struct ListTemplate {
     lists: Vec<Vec<LetterPair>>,
 }
 
+#[derive(Template)]
+#[template(path = "add.html")]
+struct AddTemplate {
+}
+
 #[derive(sqlx::FromRow, Clone, Debug)]
 struct LetterPair {
     pub initial:  String,
@@ -73,12 +78,22 @@ async fn list() -> Result<HttpResponse, Error> {
         .body(view))
 }
 
+async fn add() -> Result<HttpResponse, Error> {
+    let html = AddTemplate {
+    };
+    let view = html.render().expect("failed to render html");
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(view))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(index))
             .route("/list", web::get().to(list))
+            .route("/add", web::get().to(add))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         //.bind("localhost:8080")?

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>LearningLetterPairs</title>
+    <link rel="stylesheet" href="static/css/common_style.css">
+    <link rel="stylesheet" href="static/css/add_style.css">
+</head>
+<body>
+    <h1><a href="/"><img src="static/resources/title.png"></a></h1>
+    <h2>Add letter pairs</h2>
+
+    <form method="POST">
+        <table>
+            <tr>
+                <td>
+                    <label for="lp">Letter pair</label>
+                    <br />
+                    <input type="text" id="lp" required minlength="1" maxlength="2">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="letters">Letter</label>
+                    <br />
+                    <textarea id="letters"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="image">Image</label>
+                    <br />
+                    <input type="file" id="image" accept="image/png">
+                </td>
+            </tr>
+        </table>
+
+        <p><input type="submit" id="confirm" value="Confirm"></p>
+    </form>
+
+</body>
+</html>
