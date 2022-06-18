@@ -19,30 +19,12 @@
             </td>
             <td bgcolor="#EEEEEE">
                 <p>
-                    <a href="#A">あ</a>
-                    |<a href="#I">い</a>
-                    |<a href="#U">う</a>
-                    |<a href="#E">え</a>
-                    |<a href="#KA">か</a>
-                    |<a href="#KI">き</a>
-                    |<a href="#KU">く</a>
-                    |<a href="#KE">け</a>
-                    |<a href="#SA">さ</a>
-                    |<a href="#SI">し</a>
-                    |<a href="#SU">す</a>
-                    |<a href="#SE">せ</a>
-                    |<a href="#TA">た</a>
-                    |<a href="#TI">ち</a>
-                    |<a href="#TU">つ</a>
-                    |<a href="#TE">て</a>
-                    |<a href="#NA">な</a>
-                    |<a href="#NI">に</a>
-                    |<a href="#NU">ぬ</a>
-                    |<a href="#NE">ね</a>
-                    |<a href="#HA">は</a>
-                    |<a href="#HI">ひ</a>
-                    |<a href="#HU">ふ</a>
-                    |<a href="#HE">へ</a>
+                {% for list in lists %}
+                    {% if loop.index != 1 %}
+                        |
+                    {% endif %}
+                    <a href="#{{ list[0].initial }}{{ list[0].next }}">{{ list[0].hiragana }}</a>
+                {% endfor %}
                 </p>
             </td>
         </tr>

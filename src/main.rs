@@ -55,13 +55,17 @@ async fn list() -> Result<HttpResponse, Error> {
             hiragana
         ON
             list.initial = hiragana.id
+        WHERE
+            list.image <> '' OR objects <> '{}'
         ORDER BY
             list.name
         ")
         .fetch_all(&pool).await.unwrap();
 
     let html = ListTemplate {
-        lists: rows.group_by(|a, b| a.initial == b.initial).map(|list| list.to_vec()).collect(),
+        lists: rows.group_by(|a, b| a.initial == b.initial)
+                   .map(|list| list.to_vec())
+                   .collect(),
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()
