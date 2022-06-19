@@ -1,5 +1,17 @@
+/*
 body {
     padding-left: 32px;
     padding-right: 32px;
+}
+*/
+
+header {
+    margin-left: 32px;
+    margin-right: 32px;
+}
+
+.contents {
+    margin-left: 32px;
+    margin-right: 32px;
 }
 

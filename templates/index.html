@@ -2,17 +2,21 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=0.9">
     <title>LearningLetterPairs</title>
     <link rel="stylesheet" href="static/css/common_style.css">
 </head>
 <body>
-    <h1><a href="/"><img src="static/resources/title.png"></a></h1>
-    <p>Hello {{ name }}</p>
+    <header>
+        <h1><a href="/"><img src="static/resources/title.png"></a></h1>
+        <p>Hello {{ name }}</p>
+    </header>
 
-    <ul>
-        <li><a href="/list">List of letter pairs</a></li>
-        <li><a href="/add">Add letter pairs</a></li>
-    </ul>
+    <div class="contents">
+        <ul>
+            <li><a href="/list">List of letter pairs</a></li>
+            <li><a href="/add">Add letter pairs</a></li>
+        </ul>
+    </div>
 </body>
 </html>

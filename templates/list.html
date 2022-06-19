@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=0.9">
     <title>LearningLetterPairs</title>
     <link rel="stylesheet" href="static/css/common_style.css">
     <link rel="stylesheet" href="static/css/list_style.css">
@@ -36,6 +37,7 @@
         </nav>
     </header>
 
+    <div class="contents">
     {% for list in lists %}
         <h2 class="underline" id="{{ list[0].initial }}">{{ list[0].hiragana }}</h2>
         <div class="flex_box">
@@ -52,6 +54,7 @@
             {% endfor %}
         </div>
     {% endfor %}
+    </div>
 
 </body>
 </html>

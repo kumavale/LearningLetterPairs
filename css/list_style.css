@@ -1,36 +1,33 @@
+* {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
 body {
-    padding-top: 232px;
+    padding-top: 254px;
 }
 
 header {
+    width: calc(100% - 64px);
     background-color: white;
-    width: 100%;
     top: 0;
     position: fixed;
 }
 
 h2.underline {
     border-bottom: solid 3px gray;
-    padding-top: 240px;
-    margin-top: -240px;
+    padding-top: 262px;
+    margin-top: -262px;
 }
 
 h3.underline {
     border-bottom: solid 2px gray;
 }
 
-table.content {
-    width: 100%;
+table {
 }
 
-.content td {
-    padding: 16px 8px;
-    vertical-align: top;
-    background-color: #EEEEEE;
-}
-
-.content img {
-    width: 100%;
+.contents {
 }
 
 .flex_box {
@@ -46,6 +43,7 @@ table.content {
 }
 
 .flex_item img {
+    width: 100%;
     max-height: 256px;
 }
 
