@@ -20,27 +20,31 @@
                     <td>
                         <label for="lp">Letter pair</label>
                         <br />
-                        <input type="text" id="lp" required minlength="1" maxlength="2">
+                        <input type="text" name="lp" id="lp" required minlength="1" maxlength="2">
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <label for="letters">Letter</label>
                         <br />
-                        <textarea id="letters"></textarea>
+                        <textarea name="letters" id="letters"></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <label for="image">Image</label>
                         <br />
-                        <input type="file" id="image" accept="image/png">
+                        <input type="file" name="image" id="image" accept="image/png">
                     </td>
                 </tr>
             </table>
 
             <p><input type="submit" id="confirm" value="Confirm"></p>
         </form>
+    </div>
+
+    <div id="message">
+        <p> {{ message }} </p>
     </div>
 
 </body>

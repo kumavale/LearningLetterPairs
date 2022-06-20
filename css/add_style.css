@@ -22,3 +22,23 @@ td {
     background-color: #F8C410;
 }
 
+#confirm:focus {
+    outline: solid 2px;
+    border-radius: 4px;
+    outline-color: #000000;
+}
+
+#message {
+    animation: fadeout-anim 2s ease 0s 1 forwards;
+    animation-delay: 5s;
+}
+
+@keyframes fadeout-anim {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+

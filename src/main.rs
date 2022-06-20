@@ -4,6 +4,7 @@ use actix_files as fs;
 use actix_web::{error, web, App, Error, HttpResponse, HttpServer};
 use askama::Template;
 use sqlx::postgres::PgPoolOptions;
+use serde::{Deserialize, Serialize};
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -20,6 +21,7 @@ struct ListTemplate {
 #[derive(Template)]
 #[template(path = "add.html")]
 struct AddTemplate {
+    message: String,
 }
 
 #[derive(sqlx::FromRow, Clone, Debug)]
@@ -30,6 +32,12 @@ struct LetterPair {
     pub objects:  Vec<String>,
     pub image:    String,
     pub hiragana: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct AddLpParams {
+    lp:      String,
+    letters: String,
 }
 
 async fn index() -> Result<HttpResponse, Error> {
@@ -80,6 +88,17 @@ async fn list() -> Result<HttpResponse, Error> {
 
 async fn add() -> Result<HttpResponse, Error> {
     let html = AddTemplate {
+        message: "".to_string(),
+    };
+    let view = html.render().expect("failed to render html");
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(view))
+}
+
+async fn add_lp(params: web::Form<AddLpParams>) -> Result<HttpResponse, Error> {
+    let html = AddTemplate {
+        message: format!("Sccess ({})", params.lp),
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()
@@ -94,6 +113,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
             .route("/list", web::get().to(list))
             .route("/add", web::get().to(add))
+            .route("/add", web::post().to(add_lp))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         //.bind("localhost:8080")?

@@ -9,6 +9,7 @@ dependencies = [
  "actix-files",
  "actix-web",
  "askama",
+ "serde",
  "sqlx",
 ]
 
