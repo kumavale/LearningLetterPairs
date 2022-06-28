@@ -1,43 +1,17 @@
 #![feature(slice_group_by)]
 
+mod add;
+mod list;
+
 use actix_files as fs;
-use actix_web::{error, web, App, Error, HttpResponse, HttpServer};
+use actix_web::{web, App, Error, HttpResponse, HttpServer};
 use askama::Template;
-use sqlx::postgres::PgPoolOptions;
-use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 
 #[derive(Template)]
 #[template(path = "index.html")]
 struct IndexTemplate {
     name: String,
-}
-
-#[derive(Template)]
-#[template(path = "list.html")]
-struct ListTemplate {
-    lists: Vec<Vec<LetterPair>>,
-}
-
-#[derive(Template)]
-#[template(path = "add.html")]
-struct AddTemplate {
-    message: String,
-}
-
-#[derive(sqlx::FromRow, Clone, Debug)]
-struct LetterPair {
-    pub initial:  String,
-    pub next:     String,
-    pub name:     String,
-    pub objects:  Vec<String>,
-    pub image:    String,
-    pub hiragana: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct AddLpParams {
-    lp:      String,
-    letters: String,
 }
 
 async fn index() -> Result<HttpResponse, Error> {
@@ -50,70 +24,17 @@ async fn index() -> Result<HttpResponse, Error> {
         .body(view))
 }
 
-async fn list() -> Result<HttpResponse, Error> {
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect("postgres://postgres:postgres@localhost/letterpairs").await.unwrap();
-    let rows = sqlx::query_as::<_, LetterPair>("
-        SELECT
-            list.initial,
-            list.next,
-            list.name,
-            list.objects,
-            list.image,
-            hiragana.name AS hiragana
-        FROM
-            list
-        LEFT JOIN
-            hiragana
-        ON
-            list.initial = hiragana.id
-        WHERE
-            list.image <> '' OR objects <> '{}'
-        ORDER BY
-            list.name
-        ")
-        .fetch_all(&pool).await.unwrap();
-
-    let html = ListTemplate {
-        lists: rows.group_by(|a, b| a.initial == b.initial)
-                   .map(|list| list.to_vec())
-                   .collect(),
-    };
-    let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
-        .content_type("text/html")
-        .body(view))
-}
-
-async fn add() -> Result<HttpResponse, Error> {
-    let html = AddTemplate {
-        message: "".to_string(),
-    };
-    let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
-        .content_type("text/html")
-        .body(view))
-}
-
-async fn add_lp(params: web::Form<AddLpParams>) -> Result<HttpResponse, Error> {
-    let html = AddTemplate {
-        message: format!("Sccess ({})", params.lp),
-    };
-    let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
-        .content_type("text/html")
-        .body(view))
-}
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let pool = PgPool::connect("postgres://postgres:postgres@localhost/letterpairs").await.unwrap();
+
+    HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(pool.clone()))
             .route("/", web::get().to(index))
-            .route("/list", web::get().to(list))
-            .route("/add", web::get().to(add))
-            .route("/add", web::post().to(add_lp))
+            .route("/list", web::get().to(list::list))
+            .route("/add", web::get().to(add::add))
+            .route("/add", web::post().to(add::add_lp))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         //.bind("localhost:8080")?
