@@ -11,7 +11,7 @@ struct ListTemplate {
 #[derive(sqlx::FromRow, Clone, Debug)]
 struct LetterPair {
     pub initial:  String,
-    pub next:     String,
+    pub _next:     String,
     pub name:     String,
     pub objects:  Vec<String>,
     pub image:    String,
@@ -38,7 +38,9 @@ pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
         ORDER BY
             list.name
         ")
-        .fetch_all(&**pool).await.unwrap();
+        .fetch_all(&**pool)
+        .await
+        .unwrap();
 
     let html = ListTemplate {
         lists: rows.group_by(|a, b| a.initial == b.initial)
