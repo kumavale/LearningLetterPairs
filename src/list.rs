@@ -11,7 +11,7 @@ struct ListTemplate {
 #[derive(sqlx::FromRow, Clone, Debug)]
 struct LetterPair {
     pub initial:  String,
-    pub _next:     String,
+    pub next:     String,
     pub name:     String,
     pub objects:  Vec<String>,
     pub image:    String,
