@@ -27,7 +27,7 @@
                             {% if loop.index != 1 %}
                                 |
                             {% endif %}
-                            <a href="#{{ list[0].initial }}">{{ list[0].hiragana }}</a>
+                            <a href="#{{ list[0].initial }}">{{ list[0].initial }}</a>
                         {% endfor %}
                         </p>
                     </td>
@@ -39,7 +39,7 @@
 
     <div class="contents">
     {% for list in lists %}
-        <h2 class="underline" id="{{ list[0].initial }}">{{ list[0].hiragana }}</h2>
+        <h2 class="underline" id="{{ list[0].initial }}">{{ list[0].initial }}</h2>
         <div class="flex_box">
             {% for pair in list %}
                 <div class="flex_item">

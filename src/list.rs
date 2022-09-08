@@ -10,12 +10,11 @@ struct ListTemplate {
 
 #[derive(sqlx::FromRow, Clone, Debug)]
 struct LetterPair {
-    pub initial:  String,
-    pub next:     String,
-    pub name:     String,
-    pub objects:  Vec<String>,
-    pub image:    String,
-    pub hiragana: String,
+    pub initial: String,
+    pub next:    String,
+    pub objects: Vec<String>,
+    pub image:   String,
+    pub name:    String,
 }
 
 pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
@@ -23,20 +22,15 @@ pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
         SELECT
             list.initial,
             list.next,
-            list.name,
             list.objects,
             list.image,
-            hiragana.name AS hiragana
+            (list.initial || list.next) AS name
         FROM
             list
-        LEFT JOIN
-            hiragana
-        ON
-            list.initial = hiragana.id
         WHERE
             list.image <> '' OR objects <> '{}'
         ORDER BY
-            list.name
+            name
         ")
         .fetch_all(&**pool)
         .await

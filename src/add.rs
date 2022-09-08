@@ -28,19 +28,19 @@ pub async fn add() -> Result<HttpResponse, Error> {
         .body(view))
 }
 
-pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
-    let mut initial = "";
-    let mut next = "";
-    let mut name = "".to_string();
-    let mut filename = "".to_string();
-    let mut letters = Vec::new();
+pub async fn add_lp<'a>(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
+    let mut initial  = String::new();
+    let mut next     = String::new();
+    let mut filename = String::new();
+    let mut letters  = Vec::new();
 
     // lp
     if let Some(item) = playload.next().await {
         let mut field = item.unwrap();
         while let Some(chunk) = field.next().await {
-            let data = chunk.unwrap();
-            name = std::str::from_utf8(&data).unwrap().parse().unwrap();
+            let data: &actix_web::web::Bytes = &chunk.unwrap();
+            let name = std::str::from_utf8(data).unwrap();
+            (initial, next) = split_pair(name).unwrap();
         }
     }
 
@@ -65,7 +65,6 @@ pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<
     // image
     if let Some(item) = playload.next().await {
         let mut field = item.unwrap();
-        (initial, next) = split_pair(&name).unwrap();
         filename = format!("{}{}.png", initial.to_lowercase(), next.to_lowercase());
         let filepath = format!("img/{}", &filename);
 
@@ -91,17 +90,16 @@ pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<
     // DBへ保存
     sqlx::query(r#"
         INSERT INTO
-            list (initial, next, name, objects, image)
+            list (initial, next, objects, image)
         VALUES
-            ($1, $2, $3, $4, $5)
+            ($1, $2, $3, $4)
         ON CONFLICT
             (initial, next)
         DO UPDATE SET
-            initial=$1, next=$2, name=$3, objects=$4, image=$5
+            initial=$1, next=$2, objects=$3, image=$4
         "#)
         .bind(&initial)
         .bind(&next)
-        .bind(&name)
         .bind(&letters)
         .bind(&filename)
         .execute(&**pool)
@@ -109,7 +107,7 @@ pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<
         .unwrap();
 
     let html = AddTemplate {
-        message: format!("Sccess ({})", &name),
+        message: format!("Sccess ({}{})", &initial, &next),
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()
@@ -118,28 +116,14 @@ pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<
 }
 
 #[allow(clippy::iter_nth_zero)]
-fn split_pair(pair: &str) -> Result<(&str, &str), &str> {
-    use std::collections::HashMap;
-    use once_cell::sync::Lazy;
-
-    static HIRAGARA_TABLE: Lazy<HashMap<char, &str>> = Lazy::new(|| {
-        let mut m = HashMap::new();
-        m.insert('あ', "A");  m.insert('い', "I");  m.insert('う', "U");  m.insert('え', "E");
-        m.insert('か', "KA"); m.insert('き', "KI"); m.insert('く', "KU"); m.insert('け', "KE");
-        m.insert('さ', "SA"); m.insert('し', "SI"); m.insert('す', "SU"); m.insert('せ', "SE");
-        m.insert('た', "TA"); m.insert('ち', "TI"); m.insert('つ', "TU"); m.insert('て', "TE");
-        m.insert('な', "NA"); m.insert('に', "NI"); m.insert('ぬ', "NU"); m.insert('ね', "NE");
-        m.insert('は', "HA"); m.insert('ひ', "HI"); m.insert('ふ', "HU"); m.insert('へ', "HE");
-        m
-    });
-
-    let initial = HIRAGARA_TABLE.get(&pair.chars().nth(0).unwrap());
-    let next    = HIRAGARA_TABLE.get(&pair.chars().nth(1).unwrap());
-
-    if initial.is_none() || next.is_none() {
+fn split_pair(pair: &str) -> Result<(String, String), &str> {
+    if pair.chars().count() != 2 {
         return Err("invalid letter pair");
     }
 
-    Ok((initial.unwrap(), next.unwrap()))
+    let initial = pair.chars().nth(0).unwrap().to_string();
+    let next    = pair.chars().nth(1).unwrap().to_string();
+
+    Ok((initial, next))
 }
 
