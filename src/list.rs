@@ -1,6 +1,8 @@
 use actix_web::{web, Error, HttpResponse};
 use askama::Template;
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use crate::util;
 
 #[derive(Template)]
 #[template(path = "list.html")]
@@ -15,6 +17,12 @@ struct LetterPair {
     pub objects: Vec<String>,
     pub image:   String,
     pub name:    String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ListModifyParams {
+    name:   String,
+    submit: String,
 }
 
 pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
@@ -47,3 +55,30 @@ pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
         .body(view))
 }
 
+pub async fn list_modify(pool: web::Data<PgPool>, params: web::Form<ListModifyParams>) -> Result<HttpResponse, Error> {
+    let name   = &params.name;
+    let submit = &params.submit;
+    let (initial, next) = util::split_pair(name).unwrap();
+
+    match &**submit {
+        "Modify" => {
+            todo!()
+        }
+        "Delete" => {
+            sqlx::query(r#"
+                DELETE FROM
+                    list
+                WHERE
+                    initial=$1 AND next=$2
+                "#)
+                .bind(&initial)
+                .bind(&next)
+                .execute(&**pool)
+                .await
+                .unwrap();
+        }
+        _ => unreachable!()
+    }
+
+    list(pool).await
+}

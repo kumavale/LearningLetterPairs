@@ -1,6 +1,5 @@
 * {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    white-space: nowrap;
 }
 
 body {
@@ -68,3 +67,36 @@ table {
     margin: 2px;
 }
 
+.modify_menu {
+    display: none;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.modify_menu > div {
+    float: right;
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 128px;
+    height: 64px;
+}
+
+.modify_menu_button {
+    background: none;
+    border: unset;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+}
+
+.modify_menu_button:hover {
+    background: #FAFAFA;
+    border-radius: 8px;
+}
+
+hr {
+    margin: 0px;
+}

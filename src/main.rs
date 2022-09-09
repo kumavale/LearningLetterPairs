@@ -2,6 +2,7 @@
 
 mod add;
 mod list;
+mod util;
 
 use actix_files as fs;
 use actix_web::{web, App, Error, HttpResponse, HttpServer};
@@ -33,6 +34,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .route("/", web::get().to(index))
             .route("/list", web::get().to(list::list))
+            .route("/list", web::post().to(list::list_modify))
             .route("/add", web::get().to(add::add))
             .route("/add", web::post().to(add::add_lp))
             .service(fs::Files::new("/static", ".").show_files_listing())
