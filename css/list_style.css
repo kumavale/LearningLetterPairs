@@ -80,16 +80,23 @@ table {
     border-radius: 8px;
     border: solid 1px gray;
     width: 128px;
-    height: 80px;
+    height: 64px;
 }
 
-.modify_menu_ul {
-    padding-left: 0px;
-    margin: 8px 0px;
-}
-
-.modify_menu_li {
+.modify_menu_button {
+    background: none;
+    border: unset;
     text-align: center;
-    list-style: none;
     cursor: pointer;
+    padding: 8px;
+    width: 100%;
+}
+
+.modify_menu_button:hover {
+    background: #FAFAFA;
+    border-radius: 8px;
+}
+
+hr {
+    margin: 0px;
 }

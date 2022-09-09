@@ -5,6 +5,7 @@ use askama::Template;
 use futures_util::stream::StreamExt as _;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use crate::util;
 
 #[derive(Template)]
 #[template(path = "add.html")]
@@ -28,7 +29,7 @@ pub async fn add() -> Result<HttpResponse, Error> {
         .body(view))
 }
 
-pub async fn add_lp<'a>(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
+pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
     let mut initial  = String::new();
     let mut next     = String::new();
     let mut filename = String::new();
@@ -40,7 +41,7 @@ pub async fn add_lp<'a>(pool: web::Data<PgPool>, mut playload: Multipart) -> Res
         while let Some(chunk) = field.next().await {
             let data: &actix_web::web::Bytes = &chunk.unwrap();
             let name = std::str::from_utf8(data).unwrap();
-            (initial, next) = split_pair(name).unwrap();
+            (initial, next) = util::split_pair(name).unwrap();
         }
     }
 
@@ -113,17 +114,5 @@ pub async fn add_lp<'a>(pool: web::Data<PgPool>, mut playload: Multipart) -> Res
     Ok(HttpResponse::Ok()
         .content_type("text/html")
         .body(view))
-}
-
-#[allow(clippy::iter_nth_zero)]
-fn split_pair(pair: &str) -> Result<(String, String), &str> {
-    if pair.chars().count() != 2 {
-        return Err("invalid letter pair");
-    }
-
-    let initial = pair.chars().nth(0).unwrap().to_string();
-    let next    = pair.chars().nth(1).unwrap().to_string();
-
-    Ok((initial, next))
 }
 

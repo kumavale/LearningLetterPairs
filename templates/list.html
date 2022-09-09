@@ -9,10 +9,11 @@
 </head>
 <script>
     function click_menu_button(obj) {
-        if (obj.nextElementSibling.style.display == 'none') {
-            obj.nextElementSibling.style.display='block';
+        let modify_menu = obj.nextElementSibling;
+        if (modify_menu.style.display == 'none') {
+            modify_menu.style.display='block';
         } else {
-            obj.nextElementSibling.style.display='none';
+            modify_menu.style.display='none';
         }
     }
 </script>
@@ -59,11 +60,12 @@
                     </div>
                     <div class="modify_menu">
                         <div>
-                            <ul class="modify_menu_ul">
-                                <li class="modify_menu_li">修正</li>
+                            <form method="POST">
+                                <input type="hidden" name="name" value="{{ pair.name }}">
+                                <input class="modify_menu_button" type="submit" name="submit" value="Modify">
                                 <hr>
-                                <li class="modify_menu_li">削除</li>
-                            </ul>
+                                <input class="modify_menu_button" type="submit" name="submit" value="Delete">
+                            </form>
                         </div>
                     </div>
 
