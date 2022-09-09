@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="static/css/common_style.css">
     <link rel="stylesheet" href="static/css/list_style.css">
 </head>
+<script>
+    function click_menu_button(obj) {
+        if (obj.nextElementSibling.style.display == 'none') {
+            obj.nextElementSibling.style.display='block';
+        } else {
+            obj.nextElementSibling.style.display='none';
+        }
+    }
+</script>
 <body>
     <header>
         <nav>
@@ -43,11 +52,19 @@
         <div class="flex_box">
             {% for pair in list %}
                 <div class="flex_item">
-                    <!-- TODO -->
-                    <div class="modify_button">
+                    <div class="modify_button" onclick="click_menu_button(this)">
                         <div></div>
                         <div></div>
                         <div></div>
+                    </div>
+                    <div class="modify_menu">
+                        <div>
+                            <ul class="modify_menu_ul">
+                                <li class="modify_menu_li">修正</li>
+                                <hr>
+                                <li class="modify_menu_li">削除</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <h3 class="underline">{{pair.name}}</h3>

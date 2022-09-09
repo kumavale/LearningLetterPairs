@@ -1,6 +1,5 @@
 * {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    white-space: nowrap;
 }
 
 body {
@@ -68,3 +67,29 @@ table {
     margin: 2px;
 }
 
+.modify_menu {
+    display: none;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.modify_menu > div {
+    float: right;
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 128px;
+    height: 80px;
+}
+
+.modify_menu_ul {
+    padding-left: 0px;
+    margin: 8px 0px;
+}
+
+.modify_menu_li {
+    text-align: center;
+    list-style: none;
+    cursor: pointer;
+}
