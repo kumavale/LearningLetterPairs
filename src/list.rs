@@ -2,6 +2,7 @@ use actix_web::{web, Error, HttpResponse};
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use crate::add;
 use crate::util;
 
 #[derive(Template)]
@@ -66,7 +67,7 @@ pub async fn list_modify(pool: web::Data<PgPool>, params: web::Form<ListModifyPa
 
     match &**submit {
         "Modify" => {
-            todo!()
+            return add::add(pool, name.to_string()).await;
         }
         "Delete" => {
             // 画像ファイル削除
