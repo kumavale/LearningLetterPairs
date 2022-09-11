@@ -9,6 +9,11 @@ td {
     border: solid 1px;
 }
 
+#image_preview {
+    max-width: 100%;
+    max-height: 256px;
+}
+
 #confirm {
     color: WHITE;
     background-color: #F8B400;
