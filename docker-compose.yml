@@ -1,0 +1,43 @@
+version: '3.7'
+
+x-environment: &environment
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: 5432
+    POSTGRES_DB: letterpairs
+    PGSSLMODE: disable
+
+services:
+    app:
+        build:
+            context: .
+        container_name: app
+        environment: *environment
+        networks:
+            - letterpairs_net
+        volumes:
+            - image_volume:/var/letterpairs/images
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:14
+        container_name: postgres
+        environment: *environment
+        ports:
+            - 5432:5432
+        networks:
+            - letterpairs_net
+        volumes:
+            - db_volume:/var/lib/postgres/data
+
+networks:
+    letterpairs_net:
+        driver: bridge
+
+volumes:
+    image_volume:
+        driver: local
+    db_volume:
+        driver: local

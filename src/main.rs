@@ -27,7 +27,7 @@ async fn index() -> Result<HttpResponse, Error> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let pool = PgPool::connect("postgres://postgres:postgres@localhost/letterpairs").await.unwrap();
+    let pool = PgPool::connect("postgres://postgres:postgres@postgres:5432/letterpairs").await.unwrap();
 
     HttpServer::new(move || {
         App::new()
@@ -39,8 +39,7 @@ async fn main() -> std::io::Result<()> {
             .route("/add", web::post().to(add::add_lp))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
-        //.bind("localhost:8080")?
-        .bind("192.168.10.101:8080")?
+        .bind("localhost")?
         .run()
         .await
 }
