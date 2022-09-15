@@ -3,27 +3,26 @@ version: '3.7'
 x-environment: &environment
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-    POSTGRES_HOST: postgres
+    POSTGRES_HOST: db
     POSTGRES_PORT: 5432
-    POSTGRES_DB: letterpairs
-    PGSSLMODE: disable
+    POSTGRES_DATABASE: letterpairs
 
 services:
     app:
         build:
             context: .
-        container_name: app
         environment: *environment
+        ports:
+            - 8080:80
         networks:
             - letterpairs_net
         volumes:
             - image_volume:/var/letterpairs/images
         depends_on:
-            - postgres
+            - db
 
-    postgres:
+    db:
         image: postgres:14
-        container_name: postgres
         environment: *environment
         ports:
             - 5432:5432
@@ -31,6 +30,7 @@ services:
             - letterpairs_net
         volumes:
             - db_volume:/var/lib/postgres/data
+            - ./sql:/docker-entrypoint-initdb.d
 
 networks:
     letterpairs_net:
