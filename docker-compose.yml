@@ -29,7 +29,7 @@ services:
         networks:
             - letterpairs_net
         volumes:
-            - db_volume:/var/lib/postgres/data
+            - postgres_volume:/var/lib/postgresql/data
             - ./sql:/docker-entrypoint-initdb.d
 
 networks:
@@ -39,5 +39,4 @@ networks:
 volumes:
     image_volume:
         driver: local
-    db_volume:
-        driver: local
+    postgres_volume:
