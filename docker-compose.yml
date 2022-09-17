@@ -17,7 +17,7 @@ services:
         networks:
             - letterpairs_net
         volumes:
-            - image_volume:/var/letterpairs/images
+            - image_volume:/img
         depends_on:
             - db
 
