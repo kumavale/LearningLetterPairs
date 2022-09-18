@@ -2,6 +2,7 @@
 
 mod add;
 mod list;
+mod login;
 mod util;
 
 use actix_files as fs;
@@ -37,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .route("/list", web::post().to(list::list_modify))
             .route("/add", web::get().to(add::add))
             .route("/add", web::post().to(add::add_lp))
+            .route("/login", web::get().to(login::login))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         .bind("app:80")?

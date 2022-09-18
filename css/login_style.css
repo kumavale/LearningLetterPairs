@@ -1,0 +1,32 @@
+table {
+    width: 100%;
+    border: 1px solid #BBBBCC;
+    border-radius: 4px;
+    border-spacing: 0px;
+}
+
+td {
+    background-color: #FAFAFF;
+    padding: 16px;
+    border: none;
+}
+
+#confirm {
+    color: WHITE;
+    background-color: #22B822;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    outline: none;
+}
+
+#confirm:hover {
+    background-color: #33BF33;
+}
+
+#confirm:focus {
+    outline: solid 2px;
+    border-radius: 4px;
+    outline-color: #000000;
+}
+
