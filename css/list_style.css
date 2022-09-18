@@ -7,8 +7,16 @@ body {
 
 header {
     width: calc(100% - 64px);
-    background-color: white;
     top: 0;
+    position: fixed;
+    z-index: 11;
+}
+
+#contents_nav {
+    background-color: white;
+    top: 64px;
+    width: calc(100% - 64px);
+    padding: 0px 32px;
     position: fixed;
     z-index: 10;
 }

@@ -19,11 +19,12 @@
 </script>
 <body>
     <header>
+        <h1><a href="/"><img id="title_img" src="static/resources/title.png"></a></h1>
+    </header>
+
+    <div id="contents_nav">
         <nav>
-            <h1><a href="/"><img src="static/resources/title.png"></a></h1>
-
             <h2>List of letter pairs</h2>
-
             <table align="center" cellpadding="4px" cellspacing="0px" border="1px">
                 <tr>
                     <td bgcolor="#DDDDDD">
@@ -45,7 +46,7 @@
             </table>
             <hr />
         </nav>
-    </header>
+    </div>
 
     <div class="contents">
     {% for list in lists %}

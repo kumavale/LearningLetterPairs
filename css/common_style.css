@@ -3,7 +3,17 @@ body {
 }
 
 header {
+    background-color: #333333;
     padding: 0px 32px;
+}
+
+header > h1 {
+    margin: 0px;
+}
+
+#title_img {
+    vertical-align: middle;
+    margin: 8px 0px;
 }
 
 .contents {
