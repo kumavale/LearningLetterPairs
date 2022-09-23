@@ -6,7 +6,9 @@ mod login;
 mod util;
 
 use actix_files as fs;
-use actix_web::{web, App, Error, HttpResponse, HttpServer};
+use actix_web::{cookie::Key, web, App, Error, HttpResponse, HttpServer};
+use actix_identity::IdentityMiddleware;
+use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use askama::Template;
 use sqlx::PgPool;
 
@@ -29,16 +31,20 @@ async fn index() -> Result<HttpResponse, Error> {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let pool = PgPool::connect(&database_url()).await.unwrap();
+    let secret_key = Key::generate();
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
+            .wrap(IdentityMiddleware::default())
+            .wrap(SessionMiddleware::new(CookieSessionStore::default(), secret_key.clone()))
             .route("/", web::get().to(index))
             .route("/list", web::get().to(list::list))
             .route("/list", web::post().to(list::list_modify))
             .route("/add", web::get().to(add::add))
             .route("/add", web::post().to(add::add_lp))
             .route("/login", web::get().to(login::login))
+            .route("/login", web::post().to(login::process_login))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         .bind("app:80")?
