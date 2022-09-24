@@ -23,7 +23,11 @@ pub struct AddLpParams {
     filename: String,
 }
 
-pub async fn add(user: Option<Identity>, pool: web::Data<PgPool>, name: String) -> Result<HttpResponse, Error> {
+pub async fn add(
+    user: Option<Identity>,
+    pool: web::Data<PgPool>,
+    name: String,
+) -> Result<HttpResponse, Error> {
     let (letters, filename) = if !name.is_empty() {
         let (initial, next) = util::split_pair(&name).unwrap();
         let add_lp_params = sqlx::query_as::<_, AddLpParams>("
@@ -62,7 +66,11 @@ pub async fn add(user: Option<Identity>, pool: web::Data<PgPool>, name: String) 
         .body(view))
 }
 
-pub async fn add_lp(user: Option<Identity>, pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
+pub async fn add_lp(
+    user: Option<Identity>,
+    pool: web::Data<PgPool>,
+    mut playload: Multipart,
+) -> Result<HttpResponse, Error> {
     let mut initial  = String::new();
     let mut next     = String::new();
     let mut filename = String::new();

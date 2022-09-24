@@ -28,7 +28,10 @@ pub struct ListModifyParams {
     submit: String,
 }
 
-pub async fn list(user: Option<Identity>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+pub async fn list(
+    user: Option<Identity>,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, Error> {
     let rows = sqlx::query_as::<_, LetterPair>("
         SELECT
             list.initial,
@@ -63,7 +66,11 @@ pub async fn list(user: Option<Identity>, pool: web::Data<PgPool>) -> Result<Htt
         .body(view))
 }
 
-pub async fn list_modify(user: Option<Identity>, pool: web::Data<PgPool>, params: web::Form<ListModifyParams>) -> Result<HttpResponse, Error> {
+pub async fn list_modify(
+    user: Option<Identity>,
+    pool: web::Data<PgPool>,
+    params: web::Form<ListModifyParams>,
+) -> Result<HttpResponse, Error> {
     #[derive(sqlx::FromRow)]
     struct Image {
         pub filename: String,

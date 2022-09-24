@@ -16,9 +16,12 @@ pub struct LoginParams {
     password: String,
 }
 
-pub async fn login(mut message: String, user: Option<Identity>) -> Result<HttpResponse, Error> {
+pub async fn login(
+    message: String,
+    user: Option<Identity>,
+) -> Result<HttpResponse, Error> {
     if let Some(user) = user {
-        message = format!("Login with {}", user.id().unwrap());
+        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
     }
     let html = LoginTemplate {
         message,
@@ -33,6 +36,7 @@ pub async fn process_login(
     pool: web::Data<PgPool>,
     params: web::Form<LoginParams>,
     request: HttpRequest,
+    user: Option<Identity>,
 ) -> Result<HttpResponse, Error> {
     #[derive(sqlx::FromRow)]
     pub struct Check {
@@ -58,18 +62,22 @@ pub async fn process_login(
     if result.is_ok() {
         // attach a verified user identity to the active session
         Identity::login(&request.extensions(), username.into()).unwrap();
-        // TODO: 前のURLに飛ぶ
-        Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish())
-        //login("".to_string()).await
+        let url = if let Some(url) = request.headers().get(header::REFERER) {
+            url.to_str().unwrap()
+        } else {
+            "/"
+        };
+        Ok(HttpResponse::Found().append_header((header::LOCATION, url)).finish())
     } else {
-        //login("Incorrect username or password.".to_string()).await
-        Ok(HttpResponse::Found().append_header((header::LOCATION, "/login")).finish())
+        login("Incorrect username or password.".to_string(), user).await
     }
 }
 
 pub async fn process_logout(
-    user: Identity
+    user: Option<Identity>,
 ) -> Result<HttpResponse, Error> {
-    user.logout();
+    if let Some(user) = user {
+        user.logout();
+    }
     Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish())
 }
