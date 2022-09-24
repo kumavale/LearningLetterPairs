@@ -46,7 +46,13 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .wrap(IdentityMiddleware::default())
-            .wrap(SessionMiddleware::new(CookieSessionStore::default(), secret_key.clone()))
+            .wrap(SessionMiddleware::builder(
+                    CookieSessionStore::default(),
+                    secret_key.clone()
+                )
+                .cookie_secure(false)
+                .build()
+            )
             .route("/", web::get().to(index))
             .route("/list", web::get().to(list::list))
             .route("/list", web::post().to(list::list_modify))
