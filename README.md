@@ -1,6 +1,7 @@
 # Learning Letter Pairs
 
-![stable](https://img.shields.io/badge/build-passing-success.svg)  
+![stable](https://img.shields.io/badge/build-passing-success.svg)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)  
 
 This site provides the best content for learning letter pairs.  
 You can specify not only character combinations, but also images.  
@@ -12,4 +13,8 @@ You can specify not only character combinations, but also images.
 ```bash
 $ docker-compose run -d
 ```
+
+## License
+
+ - MIT
 
