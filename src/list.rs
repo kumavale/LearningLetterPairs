@@ -3,7 +3,6 @@ use actix_identity::Identity;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use crate::add;
 use crate::util;
 
 #[derive(Template)]
@@ -88,7 +87,8 @@ pub async fn list_modify(
 
     match &**submit {
         "Modify" => {
-            return add::add(user, pool, name.to_string()).await;
+            let url = format!("/add?lp={}", name);
+            return Ok(HttpResponse::Found().append_header((header::LOCATION, url)).finish());
         }
         "Delete" => {
             // 画像ファイル削除

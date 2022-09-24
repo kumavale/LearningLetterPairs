@@ -4,6 +4,7 @@ use actix_web::{web, http::header, Error, HttpResponse};
 use actix_identity::Identity;
 use askama::Template;
 use futures_util::stream::StreamExt as _;
+use serde::Deserialize;
 use sqlx::PgPool;
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
@@ -25,18 +26,23 @@ pub struct AddLpParams {
     filename: String,
 }
 
+#[derive(Deserialize)]
+pub struct AddParam {
+    lp: Option<String>,
+}
+
 pub async fn add(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
-    name: String,
+    params: web::Query<AddParam>,
 ) -> Result<HttpResponse, Error> {
     if user.is_none() {
         return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
     }
 
     let username = user.unwrap().id().unwrap();
-    let (letters, filename) = if !name.is_empty() {
-        let (initial, next) = util::split_pair(&name).unwrap();
+    let (letters, filename) = if let Some(lp) = &params.lp {
+        let (initial, next) = util::split_pair(&lp).unwrap();
         let add_lp_params = sqlx::query_as::<_, AddLpParams>("
             SELECT
                 list.objects AS letters,
@@ -59,7 +65,7 @@ pub async fn add(
 
     let html = AddTemplate {
         sign: "logout".to_string(),
-        pair: name,
+        pair: params.lp.as_ref().unwrap_or(&"".to_string()).to_string(),
         letters,
         filename,
         message: "".to_string(),
