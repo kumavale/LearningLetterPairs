@@ -47,7 +47,9 @@
                         <input type="file" name="image" id="image" accept="image/png" onchange="previewImage(this);">
                         <br />
                         <br />
+                        {% if filename != "" %}
                         <img id="image_preview" src="static/img/{{ filename }}" />
+                        {% endif %}
                     </td>
                 </tr>
             </table>
