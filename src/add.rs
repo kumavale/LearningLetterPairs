@@ -5,6 +5,8 @@ use actix_identity::Identity;
 use askama::Template;
 use futures_util::stream::StreamExt as _;
 use sqlx::PgPool;
+use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
 use crate::util;
 
 #[derive(Template)]
@@ -107,7 +109,12 @@ pub async fn add_lp(
     // image
     if let Some(item) = playload.next().await {
         let mut field  = item.unwrap();
-        filename = format!("{}{}.png", initial.to_lowercase(), next.to_lowercase());
+        let rand_string: String = thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(64)
+            .map(char::from)
+            .collect();
+        filename = format!("{}.png", rand_string);
 
         // バイナリをチャンクに分けてwhileループ
         let mut filesize = 0;

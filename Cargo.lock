@@ -14,6 +14,7 @@ dependencies = [
  "askama",
  "futures-util",
  "once_cell",
+ "rand",
  "serde",
  "sqlx",
 ]
