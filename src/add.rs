@@ -1,6 +1,7 @@
 use std::io::Write;
 use actix_multipart::Multipart;
 use actix_web::{web, Error, HttpResponse};
+use actix_identity::Identity;
 use askama::Template;
 use futures_util::stream::StreamExt as _;
 use sqlx::PgPool;
@@ -9,6 +10,7 @@ use crate::util;
 #[derive(Template)]
 #[template(path = "add.html")]
 struct AddTemplate {
+    sign:     String,
     pair:     String,
     letters:  String,
     filename: String,
@@ -21,7 +23,7 @@ pub struct AddLpParams {
     filename: String,
 }
 
-pub async fn add(pool: web::Data<PgPool>, name: String) -> Result<HttpResponse, Error> {
+pub async fn add(user: Option<Identity>, pool: web::Data<PgPool>, name: String) -> Result<HttpResponse, Error> {
     let (letters, filename) = if !name.is_empty() {
         let (initial, next) = util::split_pair(&name).unwrap();
         let add_lp_params = sqlx::query_as::<_, AddLpParams>("
@@ -44,6 +46,11 @@ pub async fn add(pool: web::Data<PgPool>, name: String) -> Result<HttpResponse, 
     };
 
     let html = AddTemplate {
+        sign: if let Some(user) = user {
+            "logout".to_string()
+        } else {
+            "login".to_string()
+        },
         pair: name,
         letters,
         filename,
@@ -55,7 +62,7 @@ pub async fn add(pool: web::Data<PgPool>, name: String) -> Result<HttpResponse, 
         .body(view))
 }
 
-pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
+pub async fn add_lp(user: Option<Identity>, pool: web::Data<PgPool>, mut playload: Multipart) -> Result<HttpResponse, Error> {
     let mut initial  = String::new();
     let mut next     = String::new();
     let mut filename = String::new();
@@ -139,6 +146,11 @@ pub async fn add_lp(pool: web::Data<PgPool>, mut playload: Multipart) -> Result<
         .unwrap();
 
     let html = AddTemplate {
+        sign: if let Some(user) = user {
+            "logout".to_string()
+        } else {
+            "login".to_string()
+        },
         pair:     "".to_string(),
         letters:  "".to_string(),
         filename: "".to_string(),

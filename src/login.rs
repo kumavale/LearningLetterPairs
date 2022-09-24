@@ -66,3 +66,10 @@ pub async fn process_login(
         Ok(HttpResponse::Found().append_header((header::LOCATION, "/login")).finish())
     }
 }
+
+pub async fn process_logout(
+    user: Identity
+) -> Result<HttpResponse, Error> {
+    user.logout();
+    Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish())
+}

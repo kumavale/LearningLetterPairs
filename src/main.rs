@@ -7,7 +7,7 @@ mod util;
 
 use actix_files as fs;
 use actix_web::{cookie::Key, web, App, Error, HttpResponse, HttpServer};
-use actix_identity::IdentityMiddleware;
+use actix_identity::{Identity, IdentityMiddleware};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use askama::Template;
 use sqlx::PgPool;
@@ -15,12 +15,21 @@ use sqlx::PgPool;
 #[derive(Template)]
 #[template(path = "index.html")]
 struct IndexTemplate {
-    name: String,
+    username: String,
+    sign:     String,
 }
 
-async fn index() -> Result<HttpResponse, Error> {
-    let html = IndexTemplate {
-        name: "kumavale".to_string(),
+async fn index(user: Option<Identity>) -> Result<HttpResponse, Error> {
+    let html = if let Some(user) = user {
+        IndexTemplate {
+            username: user.id().unwrap(),
+            sign:     "logout".to_string(),
+        }
+    } else {
+        IndexTemplate {
+            username: "Anonymous".to_string(),
+            sign:     "login".to_string(),
+        }
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()
@@ -45,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             .route("/add", web::post().to(add::add_lp))
             .route("/login", web::get().to(login::login))
             .route("/login", web::post().to(login::process_login))
+            .route("/logout", web::get().to(login::process_logout))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         .bind("app:80")?

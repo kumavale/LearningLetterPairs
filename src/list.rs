@@ -1,4 +1,5 @@
 use actix_web::{web, Error, HttpResponse};
+use actix_identity::Identity;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -8,6 +9,7 @@ use crate::util;
 #[derive(Template)]
 #[template(path = "list.html")]
 struct ListTemplate {
+    sign:  String,
     lists: Vec<Vec<LetterPair>>,
 }
 
@@ -26,7 +28,7 @@ pub struct ListModifyParams {
     submit: String,
 }
 
-pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+pub async fn list(user: Option<Identity>, pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
     let rows = sqlx::query_as::<_, LetterPair>("
         SELECT
             list.initial,
@@ -49,6 +51,11 @@ pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
         lists: rows.group_by(|a, b| a.initial == b.initial)
                    .map(|list| list.to_vec())
                    .collect(),
+        sign: if let Some(user) = user {
+            "logout".to_string()
+        } else {
+            "login".to_string()
+        },
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()
@@ -56,7 +63,7 @@ pub async fn list(pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
         .body(view))
 }
 
-pub async fn list_modify(pool: web::Data<PgPool>, params: web::Form<ListModifyParams>) -> Result<HttpResponse, Error> {
+pub async fn list_modify(user: Option<Identity>, pool: web::Data<PgPool>, params: web::Form<ListModifyParams>) -> Result<HttpResponse, Error> {
     #[derive(sqlx::FromRow)]
     struct Image {
         pub filename: String,
@@ -67,7 +74,7 @@ pub async fn list_modify(pool: web::Data<PgPool>, params: web::Form<ListModifyPa
 
     match &**submit {
         "Modify" => {
-            return add::add(pool, name.to_string()).await;
+            return add::add(user, pool, name.to_string()).await;
         }
         "Delete" => {
             // 画像ファイル削除
@@ -103,5 +110,5 @@ pub async fn list_modify(pool: web::Data<PgPool>, params: web::Form<ListModifyPa
         _ => unreachable!()
     }
 
-    list(pool).await
+    list(user, pool).await
 }

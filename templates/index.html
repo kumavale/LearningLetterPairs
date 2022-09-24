@@ -10,11 +10,12 @@
 <body>
     <header>
         <a href="/"><img id="title_img" src="static/resources/title.png"></a>
-        <a href="/login" id="account_menu">Login</a>
+        <a href="/{{ sign }}" id="account_menu">{{ sign }}</a>
     </header>
 
     <div class="contents">
         <h1>Welcome to Learning Letter Pairs !</h1>
+        <p>Hi, {{ username }} !</p>
         <p>
             This site provides the best content for learning letter pairs.<br>
             You can specify not only character combinations, but also images.<br>
