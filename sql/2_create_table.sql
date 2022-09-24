@@ -1,18 +1,27 @@
--- Table: public.list
-
--- DROP TABLE IF EXISTS public.list;
-
 \c letterpairs
 
+-- list
 CREATE TABLE IF NOT EXISTS public.list
 (
-    initial text COLLATE pg_catalog."default" NOT NULL,
-    next text COLLATE pg_catalog."default" NOT NULL,
-    objects text[] COLLATE pg_catalog."default" NOT NULL,
-    image text COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT list_pkey PRIMARY KEY (initial, next)
+    username text   NOT NULL,
+    initial  text   NOT NULL,
+    next     text   NOT NULL,
+    objects  text[] NOT NULL,
+    image    text   NOT NULL,
+    CONSTRAINT list_pkey PRIMARY KEY (username, initial, next)
 )
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS public.list
-    OWNER to postgres;
+ALTER TABLE IF EXISTS public.list OWNER to postgres;
+
+-- users
+CREATE TABLE IF NOT EXISTS public.users
+(
+    id       serial NOT NULL PRIMARY KEY,
+    username text   NOT NULL,
+    password text   NOT NULL,
+    UNIQUE(username)
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users OWNER to postgres;

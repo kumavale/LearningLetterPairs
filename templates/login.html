@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=0.9">
+    <title>LearningLetterPairs</title>
+    <link rel="stylesheet" href="static/css/common_style.css">
+    <link rel="stylesheet" href="static/css/login_style.css">
+</head>
+<body>
+    <header>
+        <a href="/"><img id="title_img" src="static/resources/title.png"></a>
+    </header>
+
+    <div class="contents">
+        <h2>Login</h2>
+        <form action="/login" method="POST">
+            <table>
+                <tr>
+                    <td>
+                        <label for="username">Username</label>
+                        <br />
+                        <input type="text" name="username" id="username" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="password">Password</label>
+                        <br />
+                        <input type="password" name="password" id="password" required>
+                    </td>
+                </tr>
+            </table>
+
+            <p>{{ message }}</p>
+
+            <p><input type="submit" id="confirm" value="Login"></p>
+        </form>
+    </div>
+</body>
+</html>

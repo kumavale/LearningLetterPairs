@@ -4,16 +4,28 @@ body {
 
 header {
     background-color: #333333;
-    padding: 0px 32px;
-}
-
-header > h1 {
-    margin: 0px;
+    padding: 4px 32px;
+    display: flex;
 }
 
 #title_img {
     vertical-align: middle;
     margin: 8px 0px;
+    width: 256px;
+}
+
+#account_menu {
+    color: white;
+    display: inline-flex;
+    margin: 8px 0px;
+    height: auto;
+    margin-left: auto;
+    vertical-align: middle;
+    text-align: center;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-decoration: none;
 }
 
 .contents {
