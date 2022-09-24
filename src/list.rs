@@ -46,7 +46,7 @@ pub async fn list(
         FROM
             list
         WHERE
-            username=$1 AND (list.image <> '' OR objects <> '{}')
+            username=$1
         ORDER BY
             name
         ")
@@ -106,8 +106,10 @@ pub async fn list_modify(
                 .fetch_one(&**pool)
                 .await
                 .unwrap();
-            let filepath = format!("img/{}", image.filename);
-            std::fs::remove_file(filepath).unwrap();
+            if image.filename != "" {
+                let filepath = format!("img/{}", image.filename);
+                std::fs::remove_file(filepath).unwrap();
+            }
 
             // DBレコード削除
             sqlx::query(r#"

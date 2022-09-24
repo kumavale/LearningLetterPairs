@@ -151,6 +151,9 @@ pub async fn add_lp(
                 .unwrap()
                 .unwrap();
             f.sync_all().unwrap();
+        } else {
+            // 画像ファイルが存在しない場合は空文字にする
+            filename = "".to_string();
         }
     }
 
