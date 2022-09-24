@@ -1,6 +1,6 @@
 use std::io::Write;
 use actix_multipart::Multipart;
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, http::header, Error, HttpResponse};
 use actix_identity::Identity;
 use askama::Template;
 use futures_util::stream::StreamExt as _;
@@ -30,6 +30,11 @@ pub async fn add(
     pool: web::Data<PgPool>,
     name: String,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
+    }
+
+    let username = user.unwrap().id().unwrap();
     let (letters, filename) = if !name.is_empty() {
         let (initial, next) = util::split_pair(&name).unwrap();
         let add_lp_params = sqlx::query_as::<_, AddLpParams>("
@@ -39,8 +44,9 @@ pub async fn add(
             FROM
                 list
             WHERE
-                initial=$1 AND next=$2
+                username=$1 AND initial=$2 AND next=$3
             ")
+            .bind(&username)
             .bind(&initial)
             .bind(&next)
             .fetch_one(&**pool)
@@ -52,11 +58,7 @@ pub async fn add(
     };
 
     let html = AddTemplate {
-        sign: if let Some(user) = user {
-            "logout".to_string()
-        } else {
-            "login".to_string()
-        },
+        sign: "logout".to_string(),
         pair: name,
         letters,
         filename,
@@ -73,6 +75,11 @@ pub async fn add_lp(
     pool: web::Data<PgPool>,
     mut playload: Multipart,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
+    }
+
+    let username = user.unwrap().id().unwrap();
     let mut initial  = String::new();
     let mut next     = String::new();
     let mut filename = String::new();
@@ -144,14 +151,15 @@ pub async fn add_lp(
     // DBへ保存
     sqlx::query(r#"
         INSERT INTO
-            list (initial, next, objects, image)
+            list (username, initial, next, objects, image)
         VALUES
-            ($1, $2, $3, $4)
+            ($1, $2, $3, $4, $5)
         ON CONFLICT
-            (initial, next)
+            (username, initial, next)
         DO UPDATE SET
-            initial=$1, next=$2, objects=$3, image=$4
+            username=$1, initial=$2, next=$3, objects=$4, image=$5
         "#)
+        .bind(&username)
         .bind(&initial)
         .bind(&next)
         .bind(&letters)
@@ -161,11 +169,7 @@ pub async fn add_lp(
         .unwrap();
 
     let html = AddTemplate {
-        sign: if let Some(user) = user {
-            "logout".to_string()
-        } else {
-            "login".to_string()
-        },
+        sign:     "logout".to_string(),
         pair:     "".to_string(),
         letters:  "".to_string(),
         filename: "".to_string(),

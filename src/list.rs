@@ -1,4 +1,4 @@
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, http::header, Error, HttpResponse};
 use actix_identity::Identity;
 use askama::Template;
 use serde::{Deserialize, Serialize};
@@ -32,6 +32,11 @@ pub async fn list(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
+    let username = if let Some(user) = user {
+        user.id().unwrap()
+    } else {
+        "Anonymous".to_string()
+    };
     let rows = sqlx::query_as::<_, LetterPair>("
         SELECT
             list.initial,
@@ -42,10 +47,11 @@ pub async fn list(
         FROM
             list
         WHERE
-            list.image <> '' OR objects <> '{}'
+            username=$1 AND (list.image <> '' OR objects <> '{}')
         ORDER BY
             name
         ")
+        .bind(&username)
         .fetch_all(&**pool)
         .await
         .unwrap();
@@ -54,11 +60,7 @@ pub async fn list(
         lists: rows.group_by(|a, b| a.initial == b.initial)
                    .map(|list| list.to_vec())
                    .collect(),
-        sign: if let Some(user) = user {
-            "logout".to_string()
-        } else {
-            "login".to_string()
-        },
+        sign: "logout".to_string(),
     };
     let view = html.render().expect("failed to render html");
     Ok(HttpResponse::Ok()
@@ -71,6 +73,10 @@ pub async fn list_modify(
     pool: web::Data<PgPool>,
     params: web::Form<ListModifyParams>,
 ) -> Result<HttpResponse, Error> {
+    if user.is_none() {
+        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/list")).finish());
+    }
+
     #[derive(sqlx::FromRow)]
     struct Image {
         pub filename: String,
@@ -78,6 +84,7 @@ pub async fn list_modify(
     let name   = &params.name;
     let submit = &params.submit;
     let (initial, next) = util::split_pair(name).unwrap();
+    let username = user.as_ref().unwrap().id().unwrap();
 
     match &**submit {
         "Modify" => {
@@ -91,8 +98,9 @@ pub async fn list_modify(
                 FROM
                     list
                 WHERE
-                    initial=$1 AND next=$2
+                    username=$1 AND initial=$2 AND next=$3
                 ")
+                .bind(&username)
                 .bind(&initial)
                 .bind(&next)
                 .fetch_one(&**pool)
@@ -106,8 +114,9 @@ pub async fn list_modify(
                 DELETE FROM
                     list
                 WHERE
-                    initial=$1 AND next=$2
+                    username=$1 AND initial=$2 AND next=$3
                 "#)
+                .bind(&username)
                 .bind(&initial)
                 .bind(&next)
                 .execute(&**pool)

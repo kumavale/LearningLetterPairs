@@ -3,11 +3,12 @@
 -- list
 CREATE TABLE IF NOT EXISTS public.list
 (
-    initial text   NOT NULL,
-    next    text   NOT NULL,
-    objects text[] NOT NULL,
-    image   text   NOT NULL,
-    CONSTRAINT list_pkey PRIMARY KEY (initial, next)
+    username text   NOT NULL,
+    initial  text   NOT NULL,
+    next     text   NOT NULL,
+    objects  text[] NOT NULL,
+    image    text   NOT NULL,
+    CONSTRAINT list_pkey PRIMARY KEY (username, initial, next)
 )
 TABLESPACE pg_default;
 
