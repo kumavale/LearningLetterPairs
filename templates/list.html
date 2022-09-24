@@ -65,7 +65,10 @@
                             <form method="POST">
                                 <input type="hidden" name="name" value="{{ pair.name }}">
                                 <input class="modify_menu_button" type="submit" name="submit" value="Modify">
-                                <hr>
+                            </form>
+                            <hr>
+                            <form method="POST" onsubmit="return confirm('Delete {{ pair.name }}?');">
+                                <input type="hidden" name="name" value="{{ pair.name }}">
                                 <input class="modify_menu_button" type="submit" name="submit" value="Delete">
                             </form>
                         </div>
