@@ -3,6 +3,7 @@ use actix_identity::Identity;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use crate::util;
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -20,9 +21,6 @@ pub async fn login(
     message: String,
     user: Option<Identity>,
 ) -> Result<HttpResponse, Error> {
-    if let Some(user) = user {
-        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
-    }
     let html = LoginTemplate {
         message,
     };
@@ -79,5 +77,5 @@ pub async fn process_logout(
     if let Some(user) = user {
         user.logout();
     }
-    Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish())
+    Ok(util::redirect("/"))
 }

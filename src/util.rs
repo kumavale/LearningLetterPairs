@@ -1,3 +1,5 @@
+use actix_web::{http::header, HttpResponse};
+
 #[allow(clippy::iter_nth_zero)]
 pub fn split_pair(pair: &str) -> Result<(String, String), &str> {
     if pair.chars().count() != 2 {
@@ -8,4 +10,8 @@ pub fn split_pair(pair: &str) -> Result<(String, String), &str> {
     let next    = pair.chars().nth(1).unwrap().to_string();
 
     Ok((initial, next))
+}
+
+pub fn redirect(url: &str) -> HttpResponse {
+    HttpResponse::Found().append_header((header::LOCATION, url)).finish()
 }
