@@ -28,7 +28,7 @@ async fn index(user: Option<Identity>) -> Result<HttpResponse, Error> {
         }
     } else {
         IndexTemplate {
-            username: "Anonymous".to_string(),
+            username: "".to_string(),
             sign:     "login".to_string(),
         }
     };

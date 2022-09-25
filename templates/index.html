@@ -15,7 +15,9 @@
 
     <div class="contents">
         <h1>Welcome to Learning Letter Pairs !</h1>
+        {% if username != "" %}
         <p>Hi, {{ username }} !</p>
+        {% endif %}
         <p>
             This site provides the best content for learning letter pairs.<br>
             You can specify not only character combinations, but also images.<br>
@@ -23,11 +25,19 @@
     </div>
 
     <div class="top_contents">
+        {% if username == "" %}
+        <h2>Let's start</h2>
+        <ul>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/create">Create your account</a></li>
+        </ul>
+        {% else %}
         <h2>Contents</h2>
         <ul>
             <li><a href="/list">List of letter pairs</a></li>
             <li><a href="/add">Add letter pairs</a></li>
         </ul>
+        {% endif %}
     </div>
 </body>
 </html>
