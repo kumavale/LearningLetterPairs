@@ -1,6 +1,6 @@
 use std::io::Write;
 use actix_multipart::Multipart;
-use actix_web::{web, http::header, Error, HttpResponse};
+use actix_web::{web, Error, HttpResponse};
 use actix_identity::Identity;
 use askama::Template;
 use futures_util::stream::StreamExt as _;
@@ -37,7 +37,7 @@ pub async fn add(
     params: web::Query<AddParam>,
 ) -> Result<HttpResponse, Error> {
     if user.is_none() {
-        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
+        return Ok(util::redirect("/login"));
     }
 
     let username = user.unwrap().id().unwrap();
@@ -82,7 +82,7 @@ pub async fn add_lp(
     mut playload: Multipart,
 ) -> Result<HttpResponse, Error> {
     if user.is_none() {
-        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
+        return Ok(util::redirect("/login"));
     }
 
     let username = user.unwrap().id().unwrap();

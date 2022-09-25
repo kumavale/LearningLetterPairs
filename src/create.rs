@@ -21,9 +21,6 @@ pub async fn create(
     message: String,
     user: Option<Identity>,
 ) -> Result<HttpResponse, Error> {
-    if let Some(user) = user {
-        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/")).finish());
-    }
     let html = CreateTemplate {
         message,
     };

@@ -1,4 +1,4 @@
-use actix_web::{web, http::header, Error, HttpResponse};
+use actix_web::{web, Error, HttpResponse};
 use actix_identity::Identity;
 use askama::Template;
 use serde::{Deserialize, Serialize};
@@ -31,11 +31,11 @@ pub async fn list(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, Error> {
-    let username = if let Some(user) = user {
-        user.id().unwrap()
-    } else {
-        "Anonymous".to_string()
-    };
+    if user.is_none() {
+        return Ok(util::redirect("/login"));
+    }
+
+    let username = user.unwrap().id().unwrap();
     let rows = sqlx::query_as::<_, LetterPair>("
         SELECT
             list.initial,
@@ -73,7 +73,7 @@ pub async fn list_modify(
     params: web::Form<ListModifyParams>,
 ) -> Result<HttpResponse, Error> {
     if user.is_none() {
-        return Ok(HttpResponse::Found().append_header((header::LOCATION, "/list")).finish());
+        return Ok(util::redirect("/login"));
     }
 
     #[derive(sqlx::FromRow)]
@@ -88,7 +88,7 @@ pub async fn list_modify(
     match &**submit {
         "Modify" => {
             let url = format!("/add?lp={}", name);
-            return Ok(HttpResponse::Found().append_header((header::LOCATION, url)).finish());
+            return Ok(util::redirect(&url));
         }
         "Delete" => {
             // 画像ファイル削除
