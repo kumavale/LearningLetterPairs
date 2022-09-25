@@ -1,6 +1,7 @@
 #![feature(slice_group_by)]
 
 mod add;
+mod create;
 mod list;
 mod login;
 mod util;
@@ -61,6 +62,8 @@ async fn main() -> std::io::Result<()> {
             .route("/login", web::get().to(login::login))
             .route("/login", web::post().to(login::process_login))
             .route("/logout", web::get().to(login::process_logout))
+            .route("/create", web::get().to(create::create))
+            .route("/create", web::post().to(create::create_account))
             .service(fs::Files::new("/static", ".").show_files_listing())
     })
         .bind("app:80")?

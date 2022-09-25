@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=0.9">
     <title>LearningLetterPairs</title>
     <link rel="stylesheet" href="static/css/common_style.css">
-    <link rel="stylesheet" href="static/css/login_style.css">
+    <link rel="stylesheet" href="static/css/create_account_style.css">
 </head>
 <body>
     <header>
@@ -13,28 +13,34 @@
     </header>
 
     <div class="contents">
-        <h2>Login</h2>
-        <form action="/login" method="POST">
+        <h2>Create your account</h2>
+        <form action="/create" method="POST">
             <table>
                 <tr>
                     <td>
                         <label for="username">Username</label>
                         <br />
-                        <input type="text" name="username" id="username" required>
+                        <span class="annotation">_0-9A-Za-z</span>
+                        <br />
+                        <input type="text" name="username" id="username" maxlength="64" required>
                     </td>
                 </tr>
                 <tr>
                     <td>
                         <label for="password">Password</label>
                         <br />
-                        <input type="password" name="password" id="password" required>
+                        <span class="annotation">@#$%&amp;_:;0-9A-Za-z</span>
+                        <br />
+                        <span class="annotation">at least 8 characters</span>
+                        <br />
+                        <input type="password" name="password" id="password" minlength="8" maxlength="64" required>
                     </td>
                 </tr>
             </table>
 
             <p>{{ message }}</p>
 
-            <p><input type="submit" id="confirm" value="Login"><a href="/create" id="create">Create your account</a></p>
+            <p><input type="submit" id="confirm" value="Create your account"><a href="/login" id="login">Login</a></p>
         </form>
     </div>
 </body>

@@ -15,6 +15,7 @@ dependencies = [
  "futures-util",
  "once_cell",
  "rand",
+ "regex",
  "serde",
  "sqlx",
 ]
