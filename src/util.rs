@@ -13,5 +13,5 @@ pub fn split_pair(pair: &str) -> Result<(String, String), &str> {
 }
 
 pub fn redirect(url: &str) -> HttpResponse {
-    HttpResponse::Found().append_header((header::LOCATION, url)).finish()
+    HttpResponse::SeeOther().append_header((header::LOCATION, url)).finish()
 }
