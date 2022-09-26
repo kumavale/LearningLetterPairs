@@ -1,5 +1,6 @@
 use actix_web::{web, http::header, Error, HttpRequest, HttpResponse};
 use actix_identity::Identity;
+use actix_session::Session;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
@@ -32,10 +33,14 @@ pub async fn create(
 
 pub async fn create_account(
     pool: web::Data<PgPool>,
+    session: Session,
     params: web::Form<CreateParams>,
     request: HttpRequest,
     user: Option<Identity>,
 ) -> Result<HttpResponse, Error> {
+    // 現在のURLを保存
+    session.insert("current_url", "/").unwrap();
+
     #[derive(sqlx::FromRow)]
     pub struct Check {
         username: String,

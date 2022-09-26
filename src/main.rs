@@ -9,7 +9,7 @@ mod util;
 use actix_files as fs;
 use actix_web::{cookie::Key, web, App, Error, HttpResponse, HttpServer};
 use actix_identity::{Identity, IdentityMiddleware};
-use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+use actix_session::{Session, SessionMiddleware, storage::CookieSessionStore};
 use askama::Template;
 use sqlx::PgPool;
 
@@ -20,7 +20,13 @@ struct IndexTemplate {
     sign:     String,
 }
 
-async fn index(user: Option<Identity>) -> Result<HttpResponse, Error> {
+async fn index(
+    user: Option<Identity>,
+    session: Session,
+) -> Result<HttpResponse, Error> {
+    // 現在のURLを保存
+    session.insert("current_url", "/").unwrap();
+
     let html = if let Some(user) = user {
         IndexTemplate {
             username: user.id().unwrap(),

@@ -1,5 +1,6 @@
 use actix_web::{web, Error, HttpResponse};
 use actix_identity::Identity;
+use actix_session::Session;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -30,7 +31,11 @@ pub struct ListModifyParams {
 pub async fn list(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
+    session: Session,
 ) -> Result<HttpResponse, Error> {
+    // 現在のURLを保存
+    session.insert("current_url", "/list").unwrap();
+
     if user.is_none() {
         return Ok(util::redirect("/login"));
     }
@@ -70,8 +75,12 @@ pub async fn list(
 pub async fn list_modify(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
+    session: Session,
     params: web::Form<ListModifyParams>,
 ) -> Result<HttpResponse, Error> {
+    // 現在のURLを保存
+    session.insert("current_url", "/list").unwrap();
+
     if user.is_none() {
         return Ok(util::redirect("/login"));
     }
@@ -128,5 +137,5 @@ pub async fn list_modify(
         _ => unreachable!()
     }
 
-    list(user, pool).await
+    list(user, pool, session).await
 }
