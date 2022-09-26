@@ -1,10 +1,11 @@
-use actix_web::{web, http::header, Error, HttpRequest, HttpResponse};
+use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use sqlx::PgPool;
+use crate::util;
 
 #[derive(Template)]
 #[template(path = "create_account.html")]
@@ -91,5 +92,5 @@ pub async fn create_account(
         .unwrap();
 
     // ログイン画面に推移
-    Ok(HttpResponse::Found().append_header((header::LOCATION, "/login")).finish())
+    Ok(util::redirect("/login"))
 }
