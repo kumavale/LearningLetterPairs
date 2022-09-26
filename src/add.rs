@@ -166,6 +166,28 @@ pub async fn add_lp(
         }
     }
 
+    // 画像ファイルが既にある場合は削除する
+    #[derive(sqlx::FromRow, Clone, Debug)]
+    struct Image { filename: String, }
+    let image = sqlx::query_as::<_, Image>("
+        SELECT
+            list.image AS filename
+        FROM
+            list
+        WHERE
+            username=$1 AND initial=$2 AND next=$3
+        ")
+        .bind(&username)
+        .bind(&initial)
+        .bind(&next)
+        .fetch_one(&**pool)
+        .await
+        .unwrap();
+    if image.filename != "" {
+        let filepath = format!("img/{}", image.filename);
+        std::fs::remove_file(filepath).unwrap();
+    }
+
     // DBへ保存
     sqlx::query(r#"
         INSERT INTO
