@@ -1,5 +1,6 @@
 use actix_web::{web, http::header, Error, HttpRequest, HttpResponse, HttpMessage};
 use actix_identity::Identity;
+use actix_session::Session;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -32,6 +33,7 @@ pub async fn login(
 
 pub async fn process_login(
     pool: web::Data<PgPool>,
+    session: Session,
     params: web::Form<LoginParams>,
     request: HttpRequest,
     user: Option<Identity>,
@@ -60,12 +62,9 @@ pub async fn process_login(
     if result.is_ok() {
         // attach a verified user identity to the active session
         Identity::login(&request.extensions(), username.into()).unwrap();
-        let url = if let Some(url) = request.headers().get(header::REFERER) {
-            url.to_str().unwrap()
-        } else {
-            "/"
-        };
-        Ok(HttpResponse::Found().append_header((header::LOCATION, url)).finish())
+        // 前のページのURLを取得
+        let url = if let Some(url) = session.get("current_url").unwrap() { url } else { "/".to_string() };
+        Ok(util::redirect(&url))
     } else {
         login("Incorrect username or password.".to_string(), user).await
     }
@@ -73,9 +72,11 @@ pub async fn process_login(
 
 pub async fn process_logout(
     user: Option<Identity>,
+    session: Session,
 ) -> Result<HttpResponse, Error> {
     if let Some(user) = user {
         user.logout();
     }
+    session.purge();
     Ok(util::redirect("/"))
 }

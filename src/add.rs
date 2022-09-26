@@ -2,6 +2,7 @@ use std::io::Write;
 use actix_multipart::Multipart;
 use actix_web::{web, Error, HttpResponse};
 use actix_identity::Identity;
+use actix_session::Session;
 use askama::Template;
 use futures_util::stream::StreamExt as _;
 use serde::Deserialize;
@@ -34,8 +35,12 @@ pub struct AddParam {
 pub async fn add(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
+    session: Session,
     params: web::Query<AddParam>,
 ) -> Result<HttpResponse, Error> {
+    // 現在のURLを保存
+    session.insert("current_url", "/add").unwrap();
+
     if user.is_none() {
         return Ok(util::redirect("/login"));
     }
@@ -79,8 +84,12 @@ pub async fn add(
 pub async fn add_lp(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
+    session: Session,
     mut playload: Multipart,
 ) -> Result<HttpResponse, Error> {
+    // 現在のURLを保存
+    session.insert("current_url", "/add").unwrap();
+
     if user.is_none() {
         return Ok(util::redirect("/login"));
     }
