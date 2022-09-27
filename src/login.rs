@@ -4,6 +4,7 @@ use actix_session::Session;
 use askama::Template;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use crate::crypt;
 use crate::util;
 
 #[derive(Template)]
@@ -40,7 +41,7 @@ pub async fn process_login(
 ) -> Result<HttpResponse, Error> {
     #[derive(sqlx::FromRow)]
     pub struct Check {
-        username: String,
+        password_hash: String,
     }
 
     let username = &params.username;
@@ -48,26 +49,30 @@ pub async fn process_login(
 
     let result = sqlx::query_as::<_, Check>("
                 SELECT
-                    username
+                    password AS password_hash
                 FROM
                     users
                 WHERE
-                    username=$1 AND password=$2
+                    username=$1
                 ")
         .bind(&username)
-        .bind(&password)
         .fetch_one(&**pool)
         .await;
 
-    if result.is_ok() {
-        // attach a verified user identity to the active session
-        Identity::login(&request.extensions(), username.into()).unwrap();
-        // 前のページのURLを取得
-        let url = if let Some(url) = session.get("current_url").unwrap() { url } else { "/".to_string() };
-        Ok(util::redirect(&url))
-    } else {
-        login("Incorrect username or password.".to_string(), user).await
+    // パスワードを検証
+    if let Ok(check) = result {
+        if crypt::verify_password(password, &check.password_hash) {
+            // 認証成功
+            // attach a verified user identity to the active session
+            Identity::login(&request.extensions(), username.into()).unwrap();
+            // 前のページのURLを取得
+            let url = if let Some(url) = session.get("current_url").unwrap() { url } else { "/".to_string() };
+            return Ok(util::redirect(&url));
+        }
     }
+
+    // 認証失敗
+    login("Incorrect username or password.".to_string(), user).await
 }
 
 pub async fn process_logout(

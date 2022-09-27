@@ -5,6 +5,7 @@ use askama::Template;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use sqlx::PgPool;
+use crate::crypt;
 use crate::util;
 
 #[derive(Template)]
@@ -76,7 +77,8 @@ pub async fn create_account(
         return create("Invalid password.".to_string(), user).await;
     }
 
-    // TODO: #30 ソルト＋ハッシュ
+    // パスワードをハッシュ化(PHC)
+    let password = crypt::compute_password_hash(password).unwrap();
 
     // アカウント登録処理
     sqlx::query(r#"
