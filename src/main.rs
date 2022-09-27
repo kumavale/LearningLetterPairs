@@ -2,6 +2,7 @@
 
 mod add;
 mod create;
+mod crypt;
 mod list;
 mod login;
 mod util;
