@@ -87,6 +87,9 @@ pub async fn add_lp(
     session: Session,
     mut playload: Multipart,
 ) -> Result<HttpResponse, Error> {
+    #[derive(sqlx::FromRow, Clone, Debug)]
+    struct Image { filename: String, }
+
     // 現在のURLを保存
     session.insert("current_url", "/add").unwrap();
 
@@ -160,32 +163,49 @@ pub async fn add_lp(
                 .unwrap()
                 .unwrap();
             f.sync_all().unwrap();
-        } else {
-            // 画像ファイルが存在しない場合は空文字にする
-            filename = "".to_string();
-        }
-    }
 
-    // 画像ファイルが既にある場合は削除する
-    #[derive(sqlx::FromRow, Clone, Debug)]
-    struct Image { filename: String, }
-    let image = sqlx::query_as::<_, Image>("
-        SELECT
-            list.image AS filename
-        FROM
-            list
-        WHERE
-            username=$1 AND initial=$2 AND next=$3
-        ")
-        .bind(&username)
-        .bind(&initial)
-        .bind(&next)
-        .fetch_one(&**pool)
-        .await
-        .unwrap();
-    if image.filename != "" {
-        let filepath = format!("img/{}", image.filename);
-        std::fs::remove_file(filepath).unwrap();
+            // 画像ファイルが既にある場合は削除する
+            let image = sqlx::query_as::<_, Image>("
+                SELECT
+                    list.image AS filename
+                FROM
+                    list
+                WHERE
+                    username=$1 AND initial=$2 AND next=$3
+                ")
+                .bind(&username)
+                .bind(&initial)
+                .bind(&next)
+                .fetch_one(&**pool)
+                .await;
+            if let Ok(image) = image {
+                if image.filename != "" {
+                    let filepath = format!("img/{}", image.filename);
+                    std::fs::remove_file(filepath).unwrap();
+                }
+            }
+        } else {
+            // 画像ファイルが選択されなかった場合、既に画像ファイルが保存されているならそのファイル名。
+            // 画像ファイルが保存されていない場合は空文字にする
+            let image = sqlx::query_as::<_, Image>("
+                SELECT
+                    list.image AS filename
+                FROM
+                    list
+                WHERE
+                    username=$1 AND initial=$2 AND next=$3
+                ")
+                .bind(&username)
+                .bind(&initial)
+                .bind(&next)
+                .fetch_one(&**pool)
+                .await;
+            filename = if let Ok(image) = image {
+                image.filename
+            } else {
+                "".to_string()
+            }
+        }
     }
 
     // DBへ保存
