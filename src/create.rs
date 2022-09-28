@@ -68,11 +68,11 @@ pub async fn create_account(
     }
 
     // 文字種/文字長チェック
-    let username_re = Regex::new(r"[_0-9A-Za-z]{1,50}").unwrap();
+    let username_re = Regex::new(r"[_0-9A-Za-z]{1,64}").unwrap();
     if !username_re.is_match(&username) {
         return create("Invalid username.".to_string(), user).await;
     }
-    let password_re = Regex::new(r"[@#$%&_:;0-9A-Za-z]{8,50}").unwrap();
+    let password_re = Regex::new(r"[@#$%&_:;0-9A-Za-z]{8,64}").unwrap();
     if !password_re.is_match(&password) {
         return create("Invalid password.".to_string(), user).await;
     }
