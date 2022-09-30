@@ -12,6 +12,7 @@
         var fileReader = new FileReader();
         fileReader.onload = (function() {
             document.getElementById('image_preview').src = fileReader.result;
+            document.getElementById('figure').style.display = 'block';
         });
         fileReader.readAsDataURL(obj.files[0]);
     }
@@ -47,9 +48,9 @@
                         <input type="file" name="image" id="image" accept="image/png" onchange="previewImage(this);">
                         <br />
                         <br />
-                        {% if filename != "" %}
-                        <img id="image_preview" src="static/img/{{ filename }}" />
-                        {% endif %}
+                        <figure id="figure" style={% if filename.is_empty() %}"display: none"{% else %}"display: block"{% endif %}>
+                            <img id="image_preview" src="static/img/{{ filename }}" />
+                        </figure>
                     </td>
                 </tr>
             </table>
