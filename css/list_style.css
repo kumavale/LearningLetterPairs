@@ -81,10 +81,10 @@ table {
 }
 
 .modify_menu {
-    display: none;
-    position: relative;
-    z-index: 2;
-    width: 100%;
+    position: absolute;
+    z-index: 3;
+    width: auto;
+    right: 0;
 }
 
 .modify_menu > div {
@@ -110,6 +110,34 @@ table {
     border-radius: 8px;
 }
 
-hr {
+.hr {
+    display: block;
+    height: 0;
     margin: 0px;
+    border-top: solid 1px gray;
+}
+
+details {
+    position: relative;
+}
+
+details > summary {
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open] > summary::before {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    cursor: default;
+    content: " ";
+    background: transparent;
 }

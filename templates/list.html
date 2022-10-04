@@ -7,16 +7,6 @@
     <link rel="stylesheet" href="static/css/common_style.css">
     <link rel="stylesheet" href="static/css/list_style.css">
 </head>
-<script>
-    function click_menu_button(obj) {
-        let modify_menu = obj.nextElementSibling;
-        if (modify_menu.style.display == "block") {
-            modify_menu.style.display = "none";
-        } else {
-            modify_menu.style.display = "block";
-        }
-    }
-</script>
 <body>
     <header>
         <a href="/"><img id="title_img" src="static/resources/title.png"></a>
@@ -45,7 +35,7 @@
                     </td>
                 </tr>
             </table>
-            <hr />
+            <span class="hr">
         </nav>
     </div>
 
@@ -55,24 +45,28 @@
         <div class="flex_box">
             {% for pair in list %}
                 <div class="flex_item">
-                    <div class="modify_button" onclick="click_menu_button(this)">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </div>
-                    <div class="modify_menu">
-                        <div>
-                            <form method="POST">
-                                <input type="hidden" name="name" value="{{ pair.name }}">
-                                <input class="modify_menu_button" type="submit" name="submit" value="Modify">
-                            </form>
-                            <hr>
-                            <form method="POST" onsubmit="return confirm('Delete {{ pair.name }}?');">
-                                <input type="hidden" name="name" value="{{ pair.name }}">
-                                <input class="modify_menu_button" type="submit" name="submit" value="Delete">
-                            </form>
+                    <details>
+                        <summary>
+                            <div class="modify_button">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </summary>
+                        <div class="modify_menu">
+                            <div>
+                                <form method="POST">
+                                    <input type="hidden" name="name" value="{{ pair.name }}">
+                                    <input class="modify_menu_button" type="submit" name="submit" value="Modify">
+                                </form>
+                                <span class="hr">
+                                <form method="POST" onsubmit="return confirm('Delete {{ pair.name }}?');">
+                                    <input type="hidden" name="name" value="{{ pair.name }}">
+                                    <input class="modify_menu_button" type="submit" name="submit" value="Delete" style="color:RED;">
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    </details>
 
                     <h3 class="underline">{{pair.name}}</h3>
                     <ul>
