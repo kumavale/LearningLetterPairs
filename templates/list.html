@@ -35,7 +35,7 @@
                     </td>
                 </tr>
             </table>
-            <hr />
+            <span class="hr">
         </nav>
     </div>
 
@@ -59,7 +59,7 @@
                                     <input type="hidden" name="name" value="{{ pair.name }}">
                                     <input class="modify_menu_button" type="submit" name="submit" value="Modify">
                                 </form>
-                                <hr>
+                                <span class="hr">
                                 <form method="POST" onsubmit="return confirm('Delete {{ pair.name }}?');">
                                     <input type="hidden" name="name" value="{{ pair.name }}">
                                     <input class="modify_menu_button" type="submit" name="submit" value="Delete" style="color:RED;">

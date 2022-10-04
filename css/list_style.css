@@ -110,8 +110,11 @@ table {
     border-radius: 8px;
 }
 
-hr {
+.hr {
+    display: block;
+    height: 0;
     margin: 0px;
+    border-top: solid 1px gray;
 }
 
 details {
