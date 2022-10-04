@@ -81,9 +81,10 @@ table {
 }
 
 .modify_menu {
-    position: relative;
+    position: absolute;
     z-index: 3;
-    width: 100%;
+    width: auto;
+    right: 0;
 }
 
 .modify_menu > div {
@@ -113,6 +114,10 @@ hr {
     margin: 0px;
 }
 
+details {
+    position: relative;
+}
+
 details > summary {
     list-style: none;
 }
@@ -121,7 +126,7 @@ details > summary::-webkit-details-marker {
     display: none;
 }
 
-details[open]>summary::before {
+details[open] > summary::before {
     position: fixed;
     top: 0;
     right: 0;
