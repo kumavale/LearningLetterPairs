@@ -81,9 +81,8 @@ table {
 }
 
 .modify_menu {
-    display: none;
     position: relative;
-    z-index: 2;
+    z-index: 3;
     width: 100%;
 }
 
@@ -112,4 +111,25 @@ table {
 
 hr {
     margin: 0px;
+}
+
+details > summary {
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open]>summary::before {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    cursor: default;
+    content: " ";
+    background: transparent;
 }
