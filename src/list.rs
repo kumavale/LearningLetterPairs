@@ -97,7 +97,7 @@ pub async fn list_modify(
     match &**submit {
         "Modify" => {
             let url = format!("/add?lp={}", name);
-            return Ok(util::redirect(&url));
+            Ok(util::redirect(&url))
         }
         "Delete" => {
             // 画像ファイル削除
@@ -133,9 +133,8 @@ pub async fn list_modify(
                 .execute(&**pool)
                 .await
                 .unwrap();
+            Ok(HttpResponse::Ok().finish())
         }
         _ => unreachable!()
     }
-
-    list(user, pool, session).await
 }
