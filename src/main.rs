@@ -59,7 +59,7 @@ async fn main() -> std::io::Result<()> {
                 .build())
             .route("/", web::get().to(index))
             .route("/list", web::get().to(list::list))
-            .route("/list", web::post().to(list::list_modify))
+            .route("/lp_delete", web::post().to(list::lp_delete))
             .route("/add", web::get().to(add::add))
             .route("/add", web::post().to(add::add_lp))
             .route("/login", web::get().to(login::login))
