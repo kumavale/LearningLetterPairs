@@ -6,6 +6,7 @@
     <title>LearningLetterPairs</title>
     <link rel="stylesheet" href="static/css/common_style.css">
     <link rel="stylesheet" href="static/css/list_style.css">
+    <script type="text/javascript" src="static/script/list.js"></script>
 </head>
 <body>
     <header>
@@ -44,7 +45,7 @@
         <h2 class="underline" id="{{ list[0].initial }}">{{ list[0].initial }}</h2>
         <div class="flex_box">
             {% for pair in list %}
-                <div class="flex_item">
+                <div class="flex_item" id="lp{{pair.name}}">
                     <details>
                         <summary>
                             <div class="modify_button">
@@ -60,9 +61,10 @@
                                     <input class="modify_menu_button" type="submit" name="submit" value="Modify">
                                 </form>
                                 <span class="hr">
-                                <form method="POST" onsubmit="return confirm('Delete {{ pair.name }}?');">
+                                <form method="POST" action="/list" onclick="delete_lp(this, '{{pair.name}}');">
                                     <input type="hidden" name="name" value="{{ pair.name }}">
-                                    <input class="modify_menu_button" type="submit" name="submit" value="Delete" style="color:RED;">
+                                    <input type="hidden" name="submit" value="Delete">
+                                    <input class="modify_menu_button" type="button" value="Delete" style="color:RED;">
                                 </form>
                             </div>
                         </div>
