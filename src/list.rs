@@ -25,7 +25,6 @@ struct LetterPair {
 #[derive(Serialize, Deserialize)]
 pub struct ListModifyParams {
     name:   String,
-    submit: String,
 }
 
 pub async fn list(
@@ -72,15 +71,11 @@ pub async fn list(
         .body(view))
 }
 
-pub async fn list_modify(
+pub async fn lp_delete(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
-    session: Session,
     params: web::Form<ListModifyParams>,
 ) -> Result<HttpResponse, Error> {
-    // 現在のURLを保存
-    session.insert("current_url", "/list").unwrap();
-
     if user.is_none() {
         return Ok(util::redirect("/login"));
     }
@@ -89,19 +84,11 @@ pub async fn list_modify(
     struct Image {
         pub filename: String,
     }
-    let name   = &params.name;
-    let submit = &params.submit;
-    let (initial, next) = util::split_pair(name).unwrap();
+    let (initial, next) = util::split_pair(&params.name).unwrap();
     let username = user.as_ref().unwrap().id().unwrap();
 
-    match &**submit {
-        "Modify" => {
-            let url = format!("/add?lp={}", name);
-            Ok(util::redirect(&url))
-        }
-        "Delete" => {
-            // 画像ファイル削除
-            let image = sqlx::query_as::<_, Image>("
+    // 画像ファイル削除
+    let image = sqlx::query_as::<_, Image>("
                 SELECT
                     list.image AS filename
                 FROM
@@ -109,32 +96,30 @@ pub async fn list_modify(
                 WHERE
                     username=$1 AND initial=$2 AND next=$3
                 ")
-                .bind(&username)
-                .bind(&initial)
-                .bind(&next)
-                .fetch_one(&**pool)
-                .await
-                .unwrap();
-            if image.filename != "" {
-                let filepath = format!("img/{}", image.filename);
-                std::fs::remove_file(filepath).unwrap();
-            }
+        .bind(&username)
+        .bind(&initial)
+        .bind(&next)
+        .fetch_one(&**pool)
+        .await
+        .unwrap();
+    if image.filename != "" {
+        let filepath = format!("img/{}", image.filename);
+        std::fs::remove_file(filepath).unwrap();
+    }
 
-            // DBレコード削除
-            sqlx::query(r#"
+    // DBレコード削除
+    sqlx::query(r#"
                 DELETE FROM
                     list
                 WHERE
                     username=$1 AND initial=$2 AND next=$3
                 "#)
-                .bind(&username)
-                .bind(&initial)
-                .bind(&next)
-                .execute(&**pool)
-                .await
-                .unwrap();
-            Ok(HttpResponse::Ok().finish())
-        }
-        _ => unreachable!()
-    }
+        .bind(&username)
+        .bind(&initial)
+        .bind(&next)
+        .execute(&**pool)
+        .await
+        .unwrap();
+
+    Ok(HttpResponse::Ok().finish())
 }
