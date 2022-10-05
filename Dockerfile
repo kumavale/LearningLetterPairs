@@ -17,7 +17,6 @@ RUN rm -rf ./src
 
 # Build my app
 COPY ./src ./src
-COPY ./css ./css
 COPY ./templates ./templates
 RUN touch -a -m ./src/main.rs
 RUN cargo +nightly build --release
@@ -26,6 +25,7 @@ RUN cargo +nightly build --release
 FROM rustlang/rust:nightly-slim
 
 COPY ./css ./css
+COPY ./script ./script
 COPY ./resources ./resources
 COPY --from=builder /app/target/release/LearningLetterPairs .
 
