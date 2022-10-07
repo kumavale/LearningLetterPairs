@@ -24,7 +24,7 @@ struct LetterPair {
 
 #[derive(Serialize)]
 struct LetterPairJSON {
-    lists: Vec<Vec<LetterPair>>,
+    lists: Vec<LetterPair>,
 }
 
 pub async fn quiz(
@@ -78,9 +78,7 @@ pub async fn shuffle_lp(
         .unwrap();
 
     let shuffle_lp = LetterPairJSON {
-        lists: rows.group_by(|a, b| a.initial == b.initial)
-                   .map(|list| list.to_vec())
-                   .collect(),
+        lists: rows,
     };
 
     Ok(web::Json(shuffle_lp))
