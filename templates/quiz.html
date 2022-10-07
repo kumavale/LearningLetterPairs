@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=0.9">
+    <title>LearningLetterPairs</title>
+    <link rel="stylesheet" href="static/css/common_style.css">
+    <link rel="stylesheet" href="static/css/quiz_style.css">
+    <script type="text/javascript" src="static/script/quiz.js"></script>
+</head>
+<body>
+    <header>
+        <a href="/"><img id="title_img" src="static/resources/title.png"></a>
+        <a href="/{{ sign }}" id="account_menu">{{ sign }}</a>
+    </header>
+
+    <div class="contents">
+        <h2>Letter pairs quiz</h2>
+        <p>
+            <table class="pc">
+                <tr>
+                    <td class="shortcut_key">←</td>
+                    <td>:</td>
+                    <td>Prev</td>
+                </tr>
+                <tr>
+                    <td class="shortcut_key">Space</td>
+                    <td>:</td>
+                    <td>Answer</td>
+                </tr>
+                <tr>
+                    <td class="shortcut_key">→</td>
+                    <td>:</td>
+                    <td>Next</td>
+                </tr>
+            </table>
+        </p>
+
+        <div class="flex_box">
+            <div class="flex_item">
+                <details>
+                    <summary>
+                        <div class="modify_button">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                    </summary>
+                    <div class="modify_menu">
+                        <div>
+                            <form method="GET" action="/add">
+                                <input type="hidden" name="lp" id="modify_input_lp">
+                                <input class="modify_menu_button" type="submit" value="Modify">
+                            </form>
+                            <span class="hr">
+                            <form method="POST" action="/lp_delete" onclick="delete_lp(this);">
+                                <input type="hidden" name="name" id="delete_input_lp">
+                                <input class="modify_menu_button" type="button" value="Delete" style="color:RED;">
+                            </form>
+                        </div>
+                    </div>
+                </details>
+                <h2 class="underline" id="lp_name"></h3>
+                <ul id="lp_objects" style="visibility:hidden;"></ul>
+                <div class="flex_img" id="lp_image" style="visibility:hidden;"></div>
+            </div>
+        </div>
+        <div class="control_buttons">
+            <button id="control_prev">Prev</button>
+            <button id="control_answer">Answer</button>
+            <button id="control_next">Next</button>
+        </div>
+    </div>
+</body>
+</html>
