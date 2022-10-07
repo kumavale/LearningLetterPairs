@@ -1,4 +1,4 @@
-h3.underline {
+h2.underline {
     border-bottom: solid 2px gray;
     margin-top: 0px;
 }
@@ -21,6 +21,7 @@ h3.underline {
 
 .flex_img {
     text-align: center;
+    height: 263px;
 }
 
 .flex_img > img {
