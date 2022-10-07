@@ -13,6 +13,7 @@ h2.underline {
 }
 
 .flex_item {
+    position: relative;
     padding: 8px;
     margin: 2px;
     background-color: #EEEEEE;
@@ -52,10 +53,11 @@ h2.underline {
     display: flex;
     flex-direction: row;
     width: 24px;
-    height: 10px;
+    height: 100%;
     cursor: pointer;
     z-index: 1;
     margin: 0px 0px 0px auto;
+    align-items: center;
 }
 
 .modify_button > div {
@@ -97,11 +99,14 @@ h2.underline {
 }
 
 details {
-    position: relative;
+    position: absolute;
+    height: 32px;
+    right: 12px;
 }
 
 details > summary {
     list-style: none;
+    height: 24px;
 }
 
 details > summary::-webkit-details-marker {
