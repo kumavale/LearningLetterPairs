@@ -52,17 +52,21 @@ document.addEventListener('keydown', (e) => {
 
 // 問題を表示
 function display_question() {
-    var lp_name_element    = document.querySelector('#lp_name');
-    var lp_objects_element = document.querySelector('#lp_objects');
-    var lp_image_element   = document.querySelector('#lp_image');
-
     // 解答を非表示に設定
     show_answer('hidden');
 
+    // LPメニューの設定
+    var modify_lp_element = document.querySelector('#modify_input_lp');
+    modify_lp_element.value = LP_LISTS[LP_POS].name;
+    var delete_lp_element = document.querySelector('#delete_input_lp');
+    delete_lp_element.value = LP_LISTS[LP_POS].name;
+
     // レターペアのタイトルを設定
+    var lp_name_element = document.querySelector('#lp_name');
     lp_name_element.innerText = LP_LISTS[LP_POS].name;
 
     // レターペアの内容を設定
+    var lp_objects_element = document.querySelector('#lp_objects');
     lp_objects_element.innerHTML = '';
     LP_LISTS[LP_POS].objects.forEach(object => {
         var li = document.createElement('li');
@@ -71,6 +75,7 @@ function display_question() {
     });
 
     // 画像ファイルの設定
+    var lp_image_element = document.querySelector('#lp_image');
     lp_image_element.innerHTML = '';
     var img = document.createElement('img');
     img.src = "static/img/" + LP_LISTS[LP_POS].image;
@@ -103,4 +108,36 @@ function prev_lp() {
         LP_POS = LP_LISTS.length - 1;
     }
     display_question();
+}
+
+// LPの削除処理
+async function delete_lp(form) {
+    let name = LP_LISTS[LP_POS].name;
+    if (!confirm('Delete ' + name + '?')) {
+        // 削除キャンセル
+        return;
+    }
+
+    // 削除処理をPOST
+    const action = form.getAttribute("action");
+    const options = {
+        method: 'POST',
+        body: new URLSearchParams(new FormData(form)),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    };
+    const res = await fetch(action, options);
+
+    if (res.ok) {
+        // 現在表示しているLPを削除して次の問題を表示する
+        LP_LISTS.splice(LP_POS, 1);
+        if (LP_POS >= LP_LISTS.length) {
+            LP_POS = 0;
+        }
+        display_question();
+    } else {
+        // 削除失敗メッセージを表示
+        alert('Failed to delete');
+    }
 }

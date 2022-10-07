@@ -47,6 +47,80 @@ h2.underline {
     text-align: center;
 }
 
+.modify_button {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 24px;
+    height: 10px;
+    cursor: pointer;
+    z-index: 1;
+    margin: 0px 0px 0px auto;
+}
+
+.modify_button > div {
+    background: #696969;
+    border-radius: 50%;
+    width: 4px;
+    height: 4px;
+    margin: 2px;
+}
+
+.modify_menu {
+    position: absolute;
+    z-index: 3;
+    width: auto;
+    right: 0;
+}
+
+.modify_menu > div {
+    float: right;
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 128px;
+    height: 64px;
+}
+
+.modify_menu_button {
+    background: none;
+    border: unset;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+}
+
+.modify_menu_button:hover {
+    background: #FAFAFA;
+    border-radius: 8px;
+}
+
+details {
+    position: relative;
+}
+
+details > summary {
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open] > summary::before {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    cursor: default;
+    content: " ";
+    background: transparent;
+}
+
 button {
     color: WHITE;
     background-color: DARKSEAGREEN;

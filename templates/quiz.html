@@ -35,8 +35,31 @@
                 </tr>
             </table>
         </p>
+
         <div class="flex_box">
             <div class="flex_item">
+                <details>
+                    <summary>
+                        <div class="modify_button">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                    </summary>
+                    <div class="modify_menu">
+                        <div>
+                            <form method="GET" action="/add">
+                                <input type="hidden" name="lp" id="modify_input_lp">
+                                <input class="modify_menu_button" type="submit" value="Modify">
+                            </form>
+                            <span class="hr">
+                            <form method="POST" action="/lp_delete" onclick="delete_lp(this);">
+                                <input type="hidden" name="name" id="delete_input_lp">
+                                <input class="modify_menu_button" type="button" value="Delete" style="color:RED;">
+                            </form>
+                        </div>
+                    </div>
+                </details>
                 <h2 class="underline" id="lp_name"></h3>
                 <ul id="lp_objects" style="visibility:hidden;"></ul>
                 <div class="flex_img" id="lp_image" style="visibility:hidden;"></div>
