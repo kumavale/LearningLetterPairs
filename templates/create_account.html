@@ -22,7 +22,7 @@
                         <br />
                         <span class="annotation">_0-9A-Za-z</span>
                         <br />
-                        <input type="text" name="username" id="username" maxlength="64" required>
+                        <input type="text" name="username" id="username" maxlength="64" pattern="[_0-9A-Za-z]+" required>
                     </td>
                 </tr>
                 <tr>
@@ -33,7 +33,7 @@
                         <br />
                         <span class="annotation">at least 8 characters</span>
                         <br />
-                        <input type="password" name="password" id="password" minlength="8" maxlength="64" required>
+                        <input type="password" name="password" id="password" minlength="8" maxlength="64" pattern="[@#$%&;_:;0-9A-Za-z]+" required>
                     </td>
                 </tr>
             </table>
