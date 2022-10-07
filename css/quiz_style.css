@@ -1,0 +1,65 @@
+h3.underline {
+    border-bottom: solid 2px gray;
+    margin-top: 0px;
+}
+
+.contents {
+}
+
+.flex_box {
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex_item {
+    padding: 8px;
+    margin: 2px;
+    background-color: #EEEEEE;
+    flex-grow: 1;
+}
+
+.flex_img {
+    text-align: center;
+}
+
+.flex_img > img {
+    width: auto;
+    max-width: 100%;
+    max-height: 256px;
+}
+
+.hr {
+    display: block;
+    height: 0;
+    margin: 0px;
+    border-top: solid 1px gray;
+}
+
+.control_buttons {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+}
+
+button {
+    color: WHITE;
+    background-color: DARKSEAGREEN;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    outline: none;
+    width: 128px;
+    height: 40px;
+}
+
+button:hover {
+    background-color: #A2D2A2;
+}
+
+button:focus {
+    outline: solid 2px;
+    border-radius: 4px;
+    outline-color: #000000;
+}
+

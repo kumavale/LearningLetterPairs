@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=0.9">
+    <title>LearningLetterPairs</title>
+    <link rel="stylesheet" href="static/css/common_style.css">
+    <link rel="stylesheet" href="static/css/quiz_style.css">
+</head>
+<body>
+    <header>
+        <a href="/"><img id="title_img" src="static/resources/title.png"></a>
+        <a href="/{{ sign }}" id="account_menu">{{ sign }}</a>
+    </header>
+
+    <div class="contents">
+        <h2>Letter pairs quiz</h2>
+        <div class="flex_box">
+            <div class="flex_item">
+                <h3 class="underline">あい</h3>
+                <ul id="lp_objects" style="visibility:hidden;">
+                    <li>dummy1</li>
+                    <li>dummy2</li>
+                </ul>
+                <div class="flex_img" id="lp_image" style="visibility:hidden;">
+                    <img src="static/img/dummy" />
+                </div>
+            </div>
+        </div>
+        <div class="control_buttons">
+            <button id="control_prev">Prev</button>
+            <button id="control_answer">Answer</button>
+            <button id="control_next">Next</button>
+        </div>
+    </div>
+</body>
+</html>

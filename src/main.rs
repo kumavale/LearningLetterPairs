@@ -5,6 +5,7 @@ mod create;
 mod crypt;
 mod list;
 mod login;
+mod quiz;
 mod util;
 
 use actix_files as fs;
@@ -62,6 +63,7 @@ async fn main() -> std::io::Result<()> {
             .route("/lp_delete", web::post().to(list::lp_delete))
             .route("/add", web::get().to(add::add))
             .route("/add", web::post().to(add::add_lp))
+            .route("/quiz", web::get().to(quiz::quiz))
             .route("/login", web::get().to(login::login))
             .route("/login", web::post().to(login::process_login))
             .route("/logout", web::get().to(login::process_logout))
