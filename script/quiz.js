@@ -32,6 +32,24 @@ window.onload = function() {
     control_prev.addEventListener('click', prev_lp);
 };
 
+// ショートカットキーの設定
+document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+        case 'ArrowLeft':
+            prev_lp();
+            break;
+        case 'ArrowRight':
+            next_lp();
+            break;
+        case ' ':
+            e.preventDefault();
+            show_answer('visible');
+            break;
+        default:
+            break;  // Do nothing
+    }
+});
+
 // 問題を表示
 function display_question() {
     var lp_name_element    = document.querySelector('#lp_name');

@@ -43,6 +43,10 @@ h2.underline {
     justify-content: space-between;
 }
 
+.shortcut_key {
+    text-align: center;
+}
+
 button {
     color: WHITE;
     background-color: DARKSEAGREEN;
@@ -64,3 +68,8 @@ button:focus {
     outline-color: #000000;
 }
 
+@media only screen and (max-width: 800px) {
+    .pc {
+        display: none;
+    }
+}
