@@ -1,0 +1,115 @@
+.hr {
+    display: block;
+    height: 0;
+    margin: 0px;
+    border-top: solid 1px gray;
+}
+
+.flex_box {
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex_item {
+    position: relative;
+    padding: 8px;
+    margin: 2px;
+    background-color: #EEEEEE;
+    flex-grow: 1;
+}
+
+.flex_img {
+    text-align: center;
+}
+
+.flex_img > img {
+    width: auto;
+    max-width: 100%;
+    max-height: 256px;
+}
+
+.modify_button {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 32px;
+    height: 100%;
+    cursor: pointer;
+    z-index: 1;
+    margin: 0px 0px 0px auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.modify_button > div {
+    background: #696969;
+    border-radius: 50%;
+    width: 4px;
+    height: 4px;
+    margin: 2px;
+}
+
+.modify_menu {
+    position: absolute;
+    z-index: 3;
+    width: auto;
+    right: 0;
+}
+
+.modify_menu > div {
+    float: right;
+    background: #FFFFFF;
+    border-radius: 8px;
+    border: solid 1px gray;
+    width: 128px;
+    height: 64px;
+}
+
+.modify_menu_button {
+    background: none;
+    border: unset;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px;
+    width: 100%;
+}
+
+.modify_menu_button:hover {
+    background: #FAFAFA;
+    border-radius: 8px;
+}
+
+details {
+    position: absolute;
+    height: 32px;
+    width: 32px;
+    right: 12px;
+    border-radius: 8px;
+}
+
+details > summary {
+    list-style: none;
+    height: 32px;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+details[open] > summary::before {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    display: block;
+    cursor: default;
+    content: " ";
+    background: transparent;
+}
+
+details:hover {
+    background-color: #E0E0E0;
+}
