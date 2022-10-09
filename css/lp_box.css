@@ -33,12 +33,13 @@
     position: relative;
     display: flex;
     flex-direction: row;
-    width: 24px;
+    width: 32px;
     height: 100%;
     cursor: pointer;
     z-index: 1;
     margin: 0px 0px 0px auto;
     align-items: center;
+    justify-content: center;
 }
 
 .modify_button > div {
@@ -82,12 +83,14 @@
 details {
     position: absolute;
     height: 32px;
+    width: 32px;
     right: 12px;
+    border-radius: 8px;
 }
 
 details > summary {
     list-style: none;
-    height: 24px;
+    height: 32px;
 }
 
 details > summary::-webkit-details-marker {
@@ -105,4 +108,8 @@ details[open] > summary::before {
     cursor: default;
     content: " ";
     background: transparent;
+}
+
+details:hover {
+    background-color: #E0E0E0;
 }

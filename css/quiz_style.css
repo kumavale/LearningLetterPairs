@@ -46,3 +46,7 @@ button:focus {
         display: none;
     }
 }
+
+details {
+    top: 7px;
+}
