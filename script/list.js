@@ -24,3 +24,18 @@ async function delete_lp(form, name) {
         alert('Failed to delete');
     }
 }
+
+// LPメニューを1つのみ開けるようにする処理
+window.onload = async function() {
+    const all_details = document.querySelectorAll("details");
+    all_details.forEach(target_details => {
+        target_details.addEventListener('click', () => {
+            all_details.forEach((other_details) => {
+                // クリックされたdetails以外のopen属性を取り除く
+                if (other_details != target_details && other_details.open) {
+                    other_details.removeAttribute("open");
+                }
+            });
+        });
+    });
+};
