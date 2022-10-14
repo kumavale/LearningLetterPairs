@@ -1,4 +1,4 @@
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, HttpResponse, Responder};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
@@ -14,6 +14,7 @@ struct ListTemplate {
 }
 
 #[derive(sqlx::FromRow, Clone, Debug)]
+#[allow(dead_code)]
 struct LetterPair {
     pub initial: String,
     pub next:    String,
@@ -31,12 +32,12 @@ pub async fn list(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
     session: Session,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     // 現在のURLを保存
     session.insert("current_url", "/list").unwrap();
 
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     let username = user.unwrap().id().unwrap();
@@ -57,7 +58,7 @@ pub async fn list(
         .bind(&username)
         .fetch_all(&**pool)
         .await
-        .unwrap();
+        .unwrap_or_default();
 
     let html = ListTemplate {
         lists: rows.group_by(|a, b| a.initial == b.initial)
@@ -66,18 +67,18 @@ pub async fn list(
         sign: "logout".to_string(),
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
 
 pub async fn lp_delete(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
     params: web::Form<ListModifyParams>,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     #[derive(sqlx::FromRow)]
@@ -88,7 +89,7 @@ pub async fn lp_delete(
     let username = user.as_ref().unwrap().id().unwrap();
 
     // 画像ファイル削除
-    let image = sqlx::query_as::<_, Image>("
+    if let Ok(image) = sqlx::query_as::<_, Image>("
                 SELECT
                     list.image AS filename
                 FROM
@@ -101,14 +102,15 @@ pub async fn lp_delete(
         .bind(&next)
         .fetch_one(&**pool)
         .await
-        .unwrap();
-    if image.filename != "" {
-        let filepath = format!("img/{}", image.filename);
-        std::fs::remove_file(filepath).unwrap();
+    {
+        if !image.filename.is_empty() {
+            let filepath = format!("img/{}", image.filename);
+            let _ = std::fs::remove_file(filepath);
+        }
     }
 
     // DBレコード削除
-    sqlx::query(r#"
+    let _ = sqlx::query(r#"
                 DELETE FROM
                     list
                 WHERE
@@ -118,8 +120,7 @@ pub async fn lp_delete(
         .bind(&initial)
         .bind(&next)
         .execute(&**pool)
-        .await
-        .unwrap();
+        .await;
 
-    Ok(HttpResponse::Ok().finish())
+    HttpResponse::Ok().finish()
 }
