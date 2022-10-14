@@ -57,7 +57,7 @@ pub async fn list(
         .bind(&username)
         .fetch_all(&**pool)
         .await
-        .unwrap();
+        .unwrap_or_default();
 
     let html = ListTemplate {
         lists: rows.group_by(|a, b| a.initial == b.initial)
@@ -88,7 +88,7 @@ pub async fn lp_delete(
     let username = user.as_ref().unwrap().id().unwrap();
 
     // 画像ファイル削除
-    let image = sqlx::query_as::<_, Image>("
+    if let Ok(image) = sqlx::query_as::<_, Image>("
                 SELECT
                     list.image AS filename
                 FROM
@@ -101,14 +101,15 @@ pub async fn lp_delete(
         .bind(&next)
         .fetch_one(&**pool)
         .await
-        .unwrap();
-    if image.filename != "" {
-        let filepath = format!("img/{}", image.filename);
-        std::fs::remove_file(filepath).unwrap();
+    {
+        if image.filename != "" {
+            let filepath = format!("img/{}", image.filename);
+            let _ = std::fs::remove_file(filepath);
+        }
     }
 
     // DBレコード削除
-    sqlx::query(r#"
+    let _ = sqlx::query(r#"
                 DELETE FROM
                     list
                 WHERE
@@ -118,8 +119,7 @@ pub async fn lp_delete(
         .bind(&initial)
         .bind(&next)
         .execute(&**pool)
-        .await
-        .unwrap();
+        .await;
 
     HttpResponse::Ok().finish()
 }
