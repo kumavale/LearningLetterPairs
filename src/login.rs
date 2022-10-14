@@ -1,4 +1,4 @@
-use actix_web::{web, Error, HttpRequest, HttpResponse, HttpMessage};
+use actix_web::{web, HttpRequest, HttpResponse, HttpMessage, Responder};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
@@ -22,14 +22,14 @@ pub struct LoginParams {
 pub async fn login(
     message: String,
     user: Option<Identity>,
-) -> Result<HttpResponse, Error> {
+) -> HttpResponse {
     let html = LoginTemplate {
         message,
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
 
 pub async fn process_login(
@@ -38,7 +38,7 @@ pub async fn process_login(
     params: web::Form<LoginParams>,
     request: HttpRequest,
     user: Option<Identity>,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     #[derive(sqlx::FromRow)]
     pub struct Check {
         password_hash: String,
@@ -67,7 +67,7 @@ pub async fn process_login(
             Identity::login(&request.extensions(), username.into()).unwrap();
             // 前のページのURLを取得
             let url = if let Some(url) = session.get("current_url").unwrap() { url } else { "/".to_string() };
-            return Ok(util::redirect(&url));
+            return util::redirect(&url);
         }
     }
 
@@ -78,10 +78,10 @@ pub async fn process_login(
 pub async fn process_logout(
     user: Option<Identity>,
     session: Session,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     if let Some(user) = user {
         user.logout();
     }
     session.purge();
-    Ok(util::redirect("/"))
+    util::redirect("/")
 }

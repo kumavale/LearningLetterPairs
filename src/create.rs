@@ -1,4 +1,4 @@
-use actix_web::{web, Error, HttpRequest, HttpResponse};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
@@ -23,14 +23,14 @@ pub struct CreateParams {
 pub async fn create(
     message: String,
     user: Option<Identity>,
-) -> Result<HttpResponse, Error> {
+) -> HttpResponse {
     let html = CreateTemplate {
         message,
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
 
 pub async fn create_account(
@@ -39,7 +39,7 @@ pub async fn create_account(
     params: web::Form<CreateParams>,
     request: HttpRequest,
     user: Option<Identity>,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     // 現在のURLを保存
     session.insert("current_url", "/").unwrap();
 
@@ -94,5 +94,5 @@ pub async fn create_account(
         .unwrap();
 
     // ログイン画面に推移
-    Ok(util::redirect("/login"))
+    util::redirect("/login")
 }

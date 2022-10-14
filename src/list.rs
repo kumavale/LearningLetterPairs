@@ -1,4 +1,4 @@
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, HttpResponse, Responder};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
@@ -31,12 +31,12 @@ pub async fn list(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
     session: Session,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     // 現在のURLを保存
     session.insert("current_url", "/list").unwrap();
 
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     let username = user.unwrap().id().unwrap();
@@ -66,18 +66,18 @@ pub async fn list(
         sign: "logout".to_string(),
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
 
 pub async fn lp_delete(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
     params: web::Form<ListModifyParams>,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     #[derive(sqlx::FromRow)]
@@ -121,5 +121,5 @@ pub async fn lp_delete(
         .await
         .unwrap();
 
-    Ok(HttpResponse::Ok().finish())
+    HttpResponse::Ok().finish()
 }

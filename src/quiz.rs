@@ -1,4 +1,4 @@
-use actix_web::{web, Error, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
@@ -30,31 +30,31 @@ struct LetterPairJSON {
 pub async fn quiz(
     user: Option<Identity>,
     session: Session,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     // 現在のURLを保存
     session.insert("current_url", "/quiz").unwrap();
 
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     let html = QuizTemplate {
         sign: "logout".to_string(),
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
 
 pub async fn shuffle_lp(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
-) -> Result<impl Responder, Error> {
+) -> impl Responder {
     if user.is_none() {
         // ログインしていない場合は空のJSONを返す
         let dummy = LetterPairJSON { lists: Vec::new(), };
-        return Ok(web::Json(dummy));
+        return web::Json(dummy);
     }
 
     let username = user.unwrap().id().unwrap();
@@ -81,5 +81,5 @@ pub async fn shuffle_lp(
         lists: rows,
     };
 
-    Ok(web::Json(shuffle_lp))
+    web::Json(shuffle_lp)
 }

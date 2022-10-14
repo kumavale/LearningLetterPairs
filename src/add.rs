@@ -1,6 +1,6 @@
 use std::io::Write;
 use actix_multipart::Multipart;
-use actix_web::{web, Error, HttpResponse};
+use actix_web::{web, HttpResponse, Responder};
 use actix_identity::Identity;
 use actix_session::Session;
 use askama::Template;
@@ -37,12 +37,12 @@ pub async fn add(
     pool: web::Data<PgPool>,
     session: Session,
     params: web::Query<AddParam>,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     // 現在のURLを保存
     session.insert("current_url", "/add").unwrap();
 
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     let username = user.unwrap().id().unwrap();
@@ -76,9 +76,9 @@ pub async fn add(
         message: "".to_string(),
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
 
 pub async fn add_lp(
@@ -86,7 +86,7 @@ pub async fn add_lp(
     pool: web::Data<PgPool>,
     session: Session,
     mut playload: Multipart,
-) -> Result<HttpResponse, Error> {
+) -> impl Responder {
     #[derive(sqlx::FromRow, Clone, Debug)]
     struct Image { filename: String, }
 
@@ -94,7 +94,7 @@ pub async fn add_lp(
     session.insert("current_url", "/add").unwrap();
 
     if user.is_none() {
-        return Ok(util::redirect("/login"));
+        return util::redirect("/login");
     }
 
     let username = user.unwrap().id().unwrap();
@@ -236,7 +236,7 @@ pub async fn add_lp(
         message:  format!("Sccess ({}{})", &initial, &next),
     };
     let view = html.render().expect("failed to render html");
-    Ok(HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("text/html")
-        .body(view))
+        .body(view)
 }
