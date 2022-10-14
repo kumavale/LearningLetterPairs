@@ -27,6 +27,6 @@ FROM rustlang/rust:nightly-slim
 COPY ./css ./css
 COPY ./script ./script
 COPY ./resources ./resources
-COPY --from=builder /app/target/release/LearningLetterPairs .
+COPY --from=builder /app/target/release/learning_letter_pairs .
 
-CMD ["./LearningLetterPairs"]
+CMD ["./learning_letter_pairs"]

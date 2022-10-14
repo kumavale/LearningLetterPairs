@@ -11,7 +11,7 @@ use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
 use crate::util;
 
-#[derive(Template)]
+#[derive(Template, Default)]
 #[template(path = "add.html")]
 struct AddTemplate {
     sign:     String,
@@ -45,36 +45,37 @@ pub async fn add(
         return util::redirect("/login");
     }
 
-    let username = user.unwrap().id().unwrap();
-    let (letters, filename) = if let Some(lp) = &params.lp {
-        let (initial, next) = util::split_pair(lp).unwrap();
-        let add_lp_params = sqlx::query_as::<_, AddLpParams>("
-            SELECT
-                list.objects AS letters,
-                list.image AS filename
-            FROM
-                list
-            WHERE
-                username=$1 AND initial=$2 AND next=$3
-            ")
-            .bind(&username)
-            .bind(&initial)
-            .bind(&next)
-            .fetch_one(&**pool)
-            .await
-            .unwrap();
-        (add_lp_params.letters.join("\n"), add_lp_params.filename)
-    } else {
-        ("".to_string(), "".to_string())
-    };
-
-    let html = AddTemplate {
+    let mut html = AddTemplate {
         sign: "logout".to_string(),
-        pair: params.lp.as_ref().unwrap_or(&"".to_string()).to_string(),
-        letters,
-        filename,
-        message: "".to_string(),
+        ..Default::default()
     };
+    let username = user.unwrap().id().unwrap();
+
+    if let Some(lp) = &params.lp {
+        if let Ok((initial, next)) = util::split_pair(lp) {
+            let add_lp_params = sqlx::query_as::<_, AddLpParams>("
+                SELECT
+                    list.objects AS letters,
+                    list.image AS filename
+                FROM
+                    list
+                WHERE
+                    username=$1 AND initial=$2 AND next=$3
+                ")
+                .bind(&username)
+                .bind(&initial)
+                .bind(&next)
+                .fetch_one(&**pool)
+                .await
+                .unwrap();
+            html.pair = lp.to_string();
+            html.letters = add_lp_params.letters.join("\n");
+            html.filename = add_lp_params.filename;
+        } else {
+            html.message = format!("Not found LP: {lp}");
+        }
+    }
+
     let view = html.render().expect("failed to render html");
     HttpResponse::Ok()
         .content_type("text/html")
@@ -229,11 +230,9 @@ pub async fn add_lp(
         .unwrap();
 
     let html = AddTemplate {
-        sign:     "logout".to_string(),
-        pair:     "".to_string(),
-        letters:  "".to_string(),
-        filename: "".to_string(),
-        message:  format!("Sccess ({}{})", &initial, &next),
+        sign:    "logout".to_string(),
+        message: format!("Sccess ({}{})", &initial, &next),
+        ..Default::default()
     };
     let view = html.render().expect("failed to render html");
     HttpResponse::Ok()
