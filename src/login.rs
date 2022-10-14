@@ -21,7 +21,6 @@ pub struct LoginParams {
 
 pub async fn login(
     message: String,
-    user: Option<Identity>,
 ) -> HttpResponse {
     let html = LoginTemplate {
         message,
@@ -37,7 +36,6 @@ pub async fn process_login(
     session: Session,
     params: web::Form<LoginParams>,
     request: HttpRequest,
-    user: Option<Identity>,
 ) -> impl Responder {
     #[derive(sqlx::FromRow)]
     pub struct Check {
@@ -72,7 +70,7 @@ pub async fn process_login(
     }
 
     // 認証失敗
-    login("Incorrect username or password.".to_string(), user).await
+    login("Incorrect username or password.".to_string()).await
 }
 
 pub async fn process_logout(

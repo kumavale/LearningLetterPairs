@@ -47,7 +47,7 @@ pub async fn add(
 
     let username = user.unwrap().id().unwrap();
     let (letters, filename) = if let Some(lp) = &params.lp {
-        let (initial, next) = util::split_pair(&lp).unwrap();
+        let (initial, next) = util::split_pair(lp).unwrap();
         let add_lp_params = sqlx::query_as::<_, AddLpParams>("
             SELECT
                 list.objects AS letters,
@@ -179,7 +179,7 @@ pub async fn add_lp(
                 .fetch_one(&**pool)
                 .await;
             if let Ok(image) = image {
-                if image.filename != "" {
+                if !image.filename.is_empty() {
                     let filepath = format!("img/{}", image.filename);
                     std::fs::remove_file(filepath).unwrap();
                 }

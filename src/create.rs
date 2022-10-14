@@ -1,5 +1,4 @@
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
-use actix_identity::Identity;
+use actix_web::{web, HttpResponse, Responder};
 use actix_session::Session;
 use askama::Template;
 use serde::{Deserialize, Serialize};
@@ -22,7 +21,6 @@ pub struct CreateParams {
 
 pub async fn create(
     message: String,
-    user: Option<Identity>,
 ) -> HttpResponse {
     let html = CreateTemplate {
         message,
@@ -37,24 +35,17 @@ pub async fn create_account(
     pool: web::Data<PgPool>,
     session: Session,
     params: web::Form<CreateParams>,
-    request: HttpRequest,
-    user: Option<Identity>,
 ) -> impl Responder {
     // 現在のURLを保存
     session.insert("current_url", "/").unwrap();
-
-    #[derive(sqlx::FromRow)]
-    pub struct Check {
-        username: String,
-    }
 
     let username = &params.username;
     let password = &params.password;
 
     // 同名アカウントチェック
-    let result = sqlx::query_as::<_, Check>("
+    let result = sqlx::query("
                 SELECT
-                    username
+                    (1)
                 FROM
                     users
                 WHERE
@@ -64,17 +55,17 @@ pub async fn create_account(
         .fetch_one(&**pool)
         .await;
     if result.is_ok() {
-        return create("Already exists account.".to_string(), user).await;
+        return create("Already exists account.".to_string()).await;
     }
 
     // 文字種/文字長チェック
     let username_re = Regex::new(r"[_0-9A-Za-z]{1,64}").unwrap();
-    if !username_re.is_match(&username) {
-        return create("Invalid username.".to_string(), user).await;
+    if !username_re.is_match(username) {
+        return create("Invalid username.".to_string()).await;
     }
     let password_re = Regex::new(r"[@#$%&_:;0-9A-Za-z]{8,64}").unwrap();
-    if !password_re.is_match(&password) {
-        return create("Invalid password.".to_string(), user).await;
+    if !password_re.is_match(password) {
+        return create("Invalid password.".to_string()).await;
     }
 
     // パスワードをハッシュ化(PHC)

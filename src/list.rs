@@ -14,6 +14,7 @@ struct ListTemplate {
 }
 
 #[derive(sqlx::FromRow, Clone, Debug)]
+#[allow(dead_code)]
 struct LetterPair {
     pub initial: String,
     pub next:    String,
@@ -102,7 +103,7 @@ pub async fn lp_delete(
         .fetch_one(&**pool)
         .await
     {
-        if image.filename != "" {
+        if !image.filename.is_empty() {
             let filepath = format!("img/{}", image.filename);
             let _ = std::fs::remove_file(filepath);
         }
