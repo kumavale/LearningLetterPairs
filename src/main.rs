@@ -3,6 +3,7 @@
 mod add;
 mod create;
 mod crypt;
+mod error;
 mod index;
 mod list;
 mod login;
@@ -40,6 +41,7 @@ async fn main() -> std::io::Result<()> {
             .route("/create", web::get().to(create::create))
             .route("/create", web::post().to(create::create_account))
             .service(fs::Files::new("/static", ".").show_files_listing())
+            .default_service(web::get().to(error::not_found))
     })
         .bind("app:80")?
         .run()
