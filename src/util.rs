@@ -15,3 +15,20 @@ pub fn split_pair(pair: &str) -> Result<(String, String), &str> {
 pub fn redirect(url: &str) -> HttpResponse {
     HttpResponse::SeeOther().append_header((header::LOCATION, url)).finish()
 }
+
+pub fn database_url() -> String {
+    let postgres_host     = std::env::var("POSTGRES_HOST").unwrap();
+    let postgres_port     = std::env::var("POSTGRES_PORT").unwrap();
+    let postgres_user     = std::env::var("POSTGRES_USER").unwrap();
+    let postgres_password = std::env::var("POSTGRES_PASSWORD").unwrap();
+    let postgres_database = std::env::var("POSTGRES_DATABASE").unwrap();
+
+    format!(
+        "postgres://{}:{}@{}:{}/{}",
+        postgres_user,
+        postgres_password,
+        postgres_host,
+        postgres_port,
+        postgres_database,
+    )
+}
