@@ -11,7 +11,7 @@ You can specify not only character combinations, but also images.
 ## Quickstart
 
 ```bash
-$ docker-compose run -d
+$ docker-compose up --build -d
 ```
 
 ## License
