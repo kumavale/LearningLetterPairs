@@ -130,6 +130,8 @@ async function delete_lp(form) {
     const res = await fetch(action, options);
 
     if (res.ok) {
+        // LPメニューを非表示にする
+        document.querySelector('details').removeAttribute("open");
         // 現在表示しているLPを削除して次の問題を表示する
         LP_LISTS.splice(LP_POS, 1);
         if (LP_POS >= LP_LISTS.length) {
