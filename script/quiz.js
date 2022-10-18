@@ -143,3 +143,25 @@ async function delete_lp(form) {
         alert('Failed to delete');
     }
 }
+
+// LPを検索して表示する
+function search() {
+    const current_pos = LP_POS;
+    const end_pos = (() => { if (LP_POS > 0) { return LP_POS - 1; } else { return LP_LISTS.length - 1; } })();
+    let search_lp = document.getElementById("search_lp").value;
+    while (LP_POS != end_pos) {
+        if (LP_LISTS[LP_POS].name == search_lp) {
+            // 表示して関数を抜ける
+            display_question();
+            return;
+        }
+        // 次の問題へシフト
+        if (LP_POS < LP_LISTS.length - 1) {
+            LP_POS += 1;
+        } else {
+            LP_POS = 0;
+        }
+    }
+    // 見つからなかったらLP_POSをリセット
+    LP_POS = current_pos;
+}
