@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
             .route("/add", web::get().to(add::add))
             .route("/add", web::post().to(add::add_lp))
             .route("/quiz", web::get().to(quiz::quiz))
-            .route("/shuffle_lp", web::post().to(quiz::shuffle_lp))
+            .route("/lp_json", web::post().to(quiz::lp_json))
             .route("/login", web::get().to(login::login))
             .route("/login", web::post().to(login::process_login))
             .route("/logout", web::get().to(login::process_logout))

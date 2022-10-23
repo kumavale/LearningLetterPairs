@@ -1,23 +1,15 @@
 // レターペアの循環リスト
 // TODO: リストにする
-var LP_LISTS;
+var LP_LISTS = [];
 var LP_POS = 0;  // 現在LP_LISTSの何番目を表示しているか
 
-window.onload = function() {
-    // シャッフルされたレターペアのリストを取得
-    fetch('/shuffle_lp', { method: 'POST' })
-        .then((response) => {
-            return response.json();
-        })
-        .then((jsonobj) => {
-            // グローバル変数に格納
-            LP_LISTS = jsonobj.lists;
-            // 問題を表示
-            display_question();
-        })
-        .catch((e) => {
-            alert("Failed to get contents");
-        });
+window.onload = async function() {
+    // レターペアのリストを取得
+    await get_lp_json();
+    // レターペアのリストをシャッフル
+    await shuffle_lp();
+    // 問題を表示
+    display_question();
 
     // [Answer]ボタン押下時のイベントハンドラ設定
     var control_answer = document.querySelector('#control_answer');
@@ -164,4 +156,30 @@ function search() {
     }
     // 見つからなかったらLP_POSをリセット
     LP_POS = current_pos;
+}
+
+// レターペアのリスト(JSON)を取得
+async function get_lp_json() {
+    await fetch('/lp_json', { method: 'POST' })
+        .then((response) => {
+            return response.json();
+        })
+        .then((jsonobj) => {
+            // グローバル変数に格納
+            LP_LISTS = jsonobj.lists;
+        })
+        .catch((e) => {
+            alert("Failed to get contents");
+        });
+}
+
+// レターペアのリストをシャッフル
+async function shuffle_lp() {
+    // Fisher-Yates shuffle
+    for (let i = LP_LISTS.length - 1; i >= 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [LP_LISTS[i], LP_LISTS[j]] = [LP_LISTS[j], LP_LISTS[i]];
+    }
+    // LP_POSをリセット
+    LP_POS = 0;
 }

@@ -47,7 +47,8 @@ pub async fn quiz(
         .body(view)
 }
 
-pub async fn shuffle_lp(
+// すべてのLPをJSON形式で返す
+pub async fn lp_json(
     user: Option<Identity>,
     pool: web::Data<PgPool>,
 ) -> impl Responder {
@@ -69,17 +70,11 @@ pub async fn shuffle_lp(
             list
         WHERE
             username=$1
-        ORDER BY
-            RANDOM()
         ")
         .bind(&username)
         .fetch_all(&**pool)
         .await
         .unwrap();
 
-    let shuffle_lp = LetterPairJSON {
-        lists: rows,
-    };
-
-    web::Json(shuffle_lp)
+    web::Json(LetterPairJSON { lists: rows })
 }
