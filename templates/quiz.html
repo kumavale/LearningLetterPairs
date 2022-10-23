@@ -17,7 +17,7 @@
 
     <div class="contents">
         <h2>Letter pairs quiz</h2>
-        <p>
+        <div id="contents_header">
             <table class="pc">
                 <tr>
                     <td class="shortcut_key">←</td>
@@ -39,7 +39,8 @@
                 <input type="search" id="search_lp" minlength="2" maxlength="2" size="8">
                 <input type="submit" value="Search" id="search_button">
             </form>
-        </p>
+            <button type="button" onclick="shuffle_lp(); display_question();" style="background-color:burlywood">Shuffle</button>
+        </div>
 
         <div class="flex_box">
             <div class="flex_item">

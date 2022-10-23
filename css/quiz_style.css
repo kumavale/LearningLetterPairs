@@ -6,6 +6,16 @@ h2.underline {
 .contents {
 }
 
+#contents_header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+#contents_header > * {
+    margin: 10px;
+}
+
 .flex_img {
     height: 263px !important;
 }
