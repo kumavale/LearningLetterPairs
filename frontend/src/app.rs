@@ -1,6 +1,7 @@
 use yew::prelude::*;
 use yew_router::prelude::*;
 use crate::components::header::Header;
+use crate::login::Login;
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -18,21 +19,6 @@ pub fn top() -> Html {
     html! {
         <div class="contents">
             <p>{"Hello kumavale"}</p>
-        </div>
-    }
-}
-
-#[function_component(Login)]
-pub fn login() -> Html {
-    html! {
-        <div class="contents">
-            <h1>{"ろぐいんぺーじ"}</h1>
-            <h1>{"Welcome to Learning Letter Pairs !"}</h1>
-            <p>{"Hi, anonymous !"}</p>
-            <p>
-                {"This site provides the best content for learning letter pairs."}<br />
-                {"You can specify not only character combinations, but also images."}<br />
-            </p>
         </div>
     }
 }
