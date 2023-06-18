@@ -11,3 +11,16 @@
     margin: auto;
     vertical-align: middle;
 }
+
+.pairs {
+    display: flex;
+}
+
+.card-pair {
+    width: 256px;
+    margin: 8px;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}

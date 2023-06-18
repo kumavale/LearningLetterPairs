@@ -2,6 +2,7 @@ use yew::prelude::*;
 use yew_router::prelude::*;
 use crate::components::header::Header;
 use crate::login::Login;
+use crate::top::Top;
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -12,15 +13,6 @@ enum Route {
     #[not_found]
     #[at("/404")]
     NotFound,
-}
-
-#[function_component(Top)]
-pub fn top() -> Html {
-    html! {
-        <div class="contents">
-            <p>{"Hello kumavale"}</p>
-        </div>
-    }
 }
 
 fn switch(routes: Route) -> Html {
