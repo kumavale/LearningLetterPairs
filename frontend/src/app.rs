@@ -6,8 +6,8 @@ use crate::components::header::Header;
 enum Route {
     #[at("/")]
     Home,
-    #[at("/list")]
-    List,
+    #[at("/login")]
+    Login,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -16,8 +16,17 @@ enum Route {
 #[function_component(Top)]
 pub fn top() -> Html {
     html! {
-        <>
         <div class="contents">
+            <p>{"Hello kumavale"}</p>
+        </div>
+    }
+}
+
+#[function_component(Login)]
+pub fn login() -> Html {
+    html! {
+        <div class="contents">
+            <h1>{"ろぐいんぺーじ"}</h1>
             <h1>{"Welcome to Learning Letter Pairs !"}</h1>
             <p>{"Hi, anonymous !"}</p>
             <p>
@@ -25,23 +34,13 @@ pub fn top() -> Html {
                 {"You can specify not only character combinations, but also images."}<br />
             </p>
         </div>
-        </>
-    }
-}
-
-#[function_component(List)]
-pub fn list() -> Html {
-    html! {
-        <>
-            <h1>{"List of letter pairs"}</h1>
-        </>
     }
 }
 
 fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <Top /> },
-        Route::List => html! { <List /> },
+        Route::Login => html! { <Login /> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }
 }
