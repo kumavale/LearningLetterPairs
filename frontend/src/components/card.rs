@@ -30,7 +30,7 @@ pub fn card(props: &Props) -> Html {
             </div>
             <div class="card-body">
                 <p class="card-text">{object}</p>
-                <img class="card-img-top" src={props.img.clone()} />
+                <img class="card-img-bottom" src={props.img.clone()} />
             </div>
         </div>
     }
