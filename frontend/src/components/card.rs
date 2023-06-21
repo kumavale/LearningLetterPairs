@@ -28,8 +28,8 @@ pub fn card(props: &Props) -> Html {
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <p class="card-text">{object}</p>
+            <div class="card-body" style="text-align: center;">
+                <p class="card-text" style="text-align: left;">{object}</p>
                 <img class="card-img-bottom" src={props.img.clone()} />
             </div>
         </div>
