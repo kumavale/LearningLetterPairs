@@ -15,12 +15,12 @@ pub fn card(props: &Props) -> Html {
 
     html! {
         <div class="card bg-light mb-3 card-pair">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center" style="padding: 0 0 0 16px;">
                 {pair}
                 <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" id="dropdownMenu"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {"⚙"}
+                        {"\u{FE19}"}
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenu">
                         <button class="dropdown-item" type="button">{"Modify"}</button>
