@@ -1,0 +1,16 @@
+{
+    "pairs": [
+        {
+            "initial": "あ",
+            "next": "い",
+            "object": "アイス",
+            "image": "https://avatars1.githubusercontent.com/u/29778890?s=400&v=4"
+        },
+        {
+            "initial": "あ",
+            "next": "う",
+            "object": "アウディ",
+            "image": "https://avatars1.githubusercontent.com/u/29778890?s=400&v=4"
+        }
+    ]
+}
