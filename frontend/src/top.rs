@@ -1,6 +1,9 @@
 use gloo_net::http::Request;
 use yew::prelude::*;
-use crate::components::card::Card;
+use crate::components::{
+    add::{AddButton, AddModal},
+    card::Card,
+};
 use crate::types::Pair;
 
 #[function_component(Top)]
@@ -35,6 +38,8 @@ pub fn top() -> Html {
             <div class="pairs">
                 {pairs}
             </div>
+            <AddModal />
+            <AddButton />
         </div>
     }
 }
