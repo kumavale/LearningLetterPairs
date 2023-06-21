@@ -7,9 +7,10 @@
 }
 
 .form-signin {
-    width: fit-content;
-    margin: auto;
-    vertical-align: middle;
+    display: flex;
+    height: calc(100vh - 58px - 64px);
+    align-items: center;
+    justify-content: center;
 }
 
 .pairs {
