@@ -1,46 +1,46 @@
 {
-    "pairs": [
-        {
-            "initial": "あ",
-            "next": "い",
-            "object": "アイス",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あい.png"
-        },
-        {
-            "initial": "あ",
-            "next": "う",
-            "object": "アルセウス",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あう.png"
-        },
-        {
-            "initial": "あ",
-            "next": "え",
-            "object": "亜鉛",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あえ.png"
-        },
-        {
-            "initial": "あ",
-            "next": "か",
-            "object": "赤ちゃん",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あか.png"
-        },
-        {
-            "initial": "あ",
-            "next": "き",
-            "object": "空き缶",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あき.png"
-        },
-        {
-            "initial": "あ",
-            "next": "く",
-            "object": "悪魔",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あく.png"
-        },
-        {
-            "initial": "あ",
-            "next": "け",
-            "object": "アーケン",
-            "image": "http://127.0.0.1:9000/llp/kumavale/あけ.png"
-        }
-    ]
+  "pairs": [
+    {
+      "initial": "あ",
+      "next": "い",
+      "object": "アイス",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あい.png"
+    },
+    {
+      "initial": "あ",
+      "next": "う",
+      "object": "アルセウス",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あう.png"
+    },
+    {
+      "initial": "あ",
+      "next": "え",
+      "object": "亜鉛",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あえ.png"
+    },
+    {
+      "initial": "あ",
+      "next": "か",
+      "object": "赤ちゃん",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あか.png"
+    },
+    {
+      "initial": "あ",
+      "next": "き",
+      "object": "空き缶",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あき.png"
+    },
+    {
+      "initial": "あ",
+      "next": "く",
+      "object": "悪魔",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あく.png"
+    },
+    {
+      "initial": "あ",
+      "next": "け",
+      "object": "アーケン",
+      "image": "http://127.0.0.1:9000/llp/kumavale/あけ.png"
+    }
+  ]
 }
