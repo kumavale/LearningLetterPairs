@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode,
     middleware::Next,
     response::Response,
-    routing::{get, post},
+    routing::{get, post, delete},
     Router,
 };
 use dotenv::dotenv;
@@ -22,6 +22,12 @@ struct Pair {
     next: String,
     object: String,
     image: String,
+}
+
+/// カード削除用プロパティ
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct LetterPair {
+    pair: String,
 }
 
 /// レターペア一覧の取得
@@ -69,6 +75,28 @@ async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) 
     Json(data)
 }
 
+/// レターペアの削除
+async fn delete_pair(State(pool): State<Arc<MySqlPool>>, Json(data): Json<LetterPair>) -> Json<Pair> {
+    tracing::info!("{:?}", &data);
+    let mut pair = data.pair.chars();
+    let initial = pair.next().unwrap().to_string();
+    let next = pair.next().unwrap().to_string();
+    let mut conn = pool.acquire().await.unwrap();
+    let pair = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE initial = ? AND next = ?;"#)
+        .bind(&initial)
+        .bind(&next)
+        .fetch_one(&mut conn)
+        .await
+        .unwrap();
+    sqlx::query(r#"DELETE FROM pairs WHERE initial = ? AND next = ?;"#)
+        .bind(&initial)
+        .bind(&next)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    Json(pair)
+}
+
 /// アクセスログ出力イベントハンドラ
 async fn access_log_on_request<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
     // HTTPメソッド及びURIを出力する
@@ -96,11 +124,12 @@ async fn main() {
     let app = Router::new()
         .route("/pairs", get(get_all_pair))
         .route("/pairs", post(add_pair))
+        .route("/pairs", delete(delete_pair))
         .layer(
             CorsLayer::new()
                 // フロントエンドからの通信を許可
                 .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap())
-                .allow_methods([Method::GET, Method::POST])
+                .allow_methods([Method::GET, Method::POST, Method::DELETE])
                 .allow_headers([CONTENT_TYPE]),
         )
         .layer(axum::middleware::from_fn(access_log_on_request))
