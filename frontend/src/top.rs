@@ -37,6 +37,7 @@ pub fn top() -> Html {
                 {pairs}
             </div>
             <AddModal />
+            <AddModal modify=true />
             <AddButton />
         </div>
     }

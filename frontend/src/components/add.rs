@@ -2,7 +2,13 @@ use gloo_net::http::Request;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlFormElement, FormData};
 use yew::prelude::*;
-use yew::Callback;
+use yew::{Callback, Properties};
+
+#[derive(Properties, PartialEq)]
+pub struct Props {
+    #[prop_or_default]
+    pub modify: bool,
+}
 
 #[function_component(AddButton)]
 pub fn add_button() -> Html {
@@ -12,14 +18,22 @@ pub fn add_button() -> Html {
 }
 
 #[function_component(AddModal)]
-pub fn add_modal() -> Html {
+pub fn add_modal(props: &Props) -> Html {
+    let id_prefix = if props.modify { "modify" } else { "add" };
+    let is_modify = props.modify;
+
     let onsubmit = Callback::from(move |e: SubmitEvent| {
         let target: Option<EventTarget> = e.target();
         let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
         let form_data = FormData::new_with_form(&form).unwrap();
 
         wasm_bindgen_futures::spawn_local(async move {
-            if let Err(_e) = Request::post("http://localhost:3000/pairs")
+            let request = if is_modify {
+                Request::put("http://localhost:3000/pairs")
+            } else {
+                Request::post("http://localhost:3000/pairs")
+            };
+            if let Err(_e) = request
                 .body(&form_data)
                 .unwrap()
                 .send()
@@ -35,34 +49,34 @@ pub fn add_modal() -> Html {
     });
 
     html! {
-        <div class="modal fade" id="add-modal" tabindex="-1">
+        <div class="modal fade" id={format!("{id_prefix}-modal")} tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <form onsubmit={onsubmit} enctype="multipart/form-data">
                         <div class="modal-header">
-                            <h5 class="modal-title">{"Add Letter Pair"}</h5>
+                            <h5 class="modal-title">{format!("{id_prefix} Letter Pair")}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="InputPair" class="form-label">{"Pair"}</label>
-                                <input type="text" class="form-control" id="InputPair" name="InputPair" placeholder="AB"
+                                <label for={format!("{id_prefix}InputPair")} class="form-label">{"Pair"}</label>
+                                <input type="text" class="form-control" id={format!("{id_prefix}InputPair")} name="InputPair" placeholder="AB"
                                     pattern=".{2,2}" title="Please input 2 characters." required=true />
                             </div>
                             <div class="mb-3">
-                                <label for="InputObject" class="form-label">{"Object"}</label>
-                                <input type="text" class="form-control" id="InputObject" name="InputObject" placeholder="ABS"
+                                <label for={format!("{id_prefix}InputObject")} class="form-label">{"Object"}</label>
+                                <input type="text" class="form-control" id={format!("{id_prefix}InputObject")} name="InputObject" placeholder="ABS"
                                     pattern=".{1,32}" title="Please input 32 characters or less." required=true />
                             </div>
                             <div class="mb-3">
-                                <label for="InputImage" class="form-label">{"Image"}</label>
-                                <input class="form-control" type="file" id="InputImage" name="InputImage" accept="image/*" aria-describedby="imageHelp" />
+                                <label for={format!("{id_prefix}InputImage")} class="form-label">{"Image"}</label>
+                                <input class="form-control" type="file" id={format!("{id_prefix}InputImage")} name="InputImage" accept="image/*" aria-describedby="imageHelp" />
                                 <div id="imageHelp" class="form-text">{"Images are cropped to a maximum of 256x256."}</div>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{"Close"}</button>
-                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">{"Add"}</button>
+                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">{"Save"}</button>
                         </div>
                     </form>
                 </div>

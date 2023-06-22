@@ -1,7 +1,7 @@
 use gloo_net::http::Request;
 use serde::Serialize;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, HtmlFormElement, FormData};
+use web_sys::{EventTarget, HtmlFormElement, HtmlInputElement, FormData};
 use yew::prelude::*;
 use yew::Properties;
 
@@ -27,7 +27,11 @@ pub fn card(props: &Props) -> Html {
                         {"\u{FE19}"}
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenu">
-                        <button class="dropdown-item" type="button">{"Modify"}</button>
+                        <form onsubmit={modify}>
+                            <input type="hidden" name="pair" value={pair.clone()} />
+                            <input type="hidden" name="object" value={object.clone()} />
+                            <button class="dropdown-item" type="submit" data-bs-toggle="modal" data-bs-target="#modify-modal">{"Modify"}</button>
+                        </form>
                         <form onsubmit={delete}>
                             <input type="hidden" name="pair" value={pair.clone()} />
                             <button class="dropdown-item fw-bold text-danger" type="submit">{"Delete"}</button>
@@ -41,6 +45,28 @@ pub fn card(props: &Props) -> Html {
             </div>
         </div>
     }
+}
+
+fn modify(e: SubmitEvent) {
+    // `value`を書き換える
+    let target: Option<EventTarget> = e.target();
+    let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
+    let form_data = FormData::new_with_form(&form).unwrap();
+    let pair = form_data.get("pair").as_string().unwrap();
+    let object = form_data.get("object").as_string().unwrap();
+    let document = web_sys::window().unwrap().document().unwrap();
+    document.get_element_by_id("modifyInputPair")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap()
+        .set_value(&pair);
+    document.get_element_by_id("modifyInputObject")
+        .unwrap()
+        .dyn_into::<HtmlInputElement>()
+        .unwrap()
+        .set_value(&object);
+
+    e.prevent_default();
 }
 
 fn delete(e: SubmitEvent) {
