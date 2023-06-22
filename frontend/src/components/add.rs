@@ -17,35 +17,10 @@ pub fn add_modal() -> Html {
         let target: Option<EventTarget> = e.target();
         let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
         let form_data = FormData::new_with_form(&form).unwrap();
-        let pair = form_data.get("InputPair").as_string().unwrap();
-        let object = form_data.get("InputObject").as_string().unwrap();
-        let image = form_data.get("InputImage");
-        //let image = js_sys::Uint8Array::new(&image).to_vec();
-        //let elements = form.elements();
-        //let pair = elements
-        //    .get_with_name("InputPair")
-        //    .unwrap()
-        //    .dyn_into::<HtmlInputElement>()
-        //    .ok()
-        //    .unwrap()
-        //    .value();
-        log::info!("{:?}", pair);
-        log::info!("{:?}", object);
-        log::info!("{:#?}", image);
 
-        // json-serverは`id`を含める必要があるっぽい
-        // あと本当は画像はバイナリを送信する
-        //let data = format!(r#"{{
-        //    "id": "1",
-        //    "initial": "あ",
-        //    "next": "い",
-        //    "object": "アイス",
-        //    "image": "http://127.0.0.1:9000/llp/kumavale/あい.png"
-        //}}"#);
         wasm_bindgen_futures::spawn_local(async move {
             let res = Request::post("http://localhost:3000/pairs")
                 .body(&form_data)
-                //.json(&data)
                 .unwrap()
                 .send()
                 .await
@@ -56,7 +31,7 @@ pub fn add_modal() -> Html {
             }
         });
 
-        e.prevent_default();
+        //e.prevent_default();
     });
 
     html! {
