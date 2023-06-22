@@ -13,14 +13,12 @@ pub fn top() -> Html {
         let pairs = pairs.clone();
         use_effect_with_deps(move |_| {
             wasm_bindgen_futures::spawn_local(async move {
-                let fetched_pairs: Vec<Pair> = Request::get("http://localhost:3000/pairs")
-                    .send()
-                    .await
-                    .unwrap()
-                    .json()
-                    .await
-                    .unwrap();
-                pairs.set(fetched_pairs);
+                if let Ok(res) = Request::get("http://localhost:3000/pairs").send().await {
+                    let fetched_pairs: Vec<Pair> = res.json().await.unwrap();
+                    pairs.set(fetched_pairs);
+                } else {
+                    // TODO: GET失敗
+                }
             });
             || ()
         }, ());

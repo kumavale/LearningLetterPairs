@@ -1,6 +1,6 @@
 use gloo_net::http::Request;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, HtmlFormElement, HtmlInputElement, FormData};
+use web_sys::{EventTarget, HtmlFormElement, FormData};
 use yew::prelude::*;
 use yew::Callback;
 
@@ -19,15 +19,13 @@ pub fn add_modal() -> Html {
         let form_data = FormData::new_with_form(&form).unwrap();
 
         wasm_bindgen_futures::spawn_local(async move {
-            let res = Request::post("http://localhost:3000/pairs")
+            if let Err(_e) = Request::post("http://localhost:3000/pairs")
                 .body(&form_data)
                 .unwrap()
                 .send()
                 .await
-                .unwrap();
-            // TODO
-            if res.ok() {
-            } else {
+            {
+                // TODO: POST失敗
             }
         });
 
