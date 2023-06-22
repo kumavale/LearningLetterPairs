@@ -18,7 +18,7 @@ pub fn card(props: &Props) -> Html {
     let object = &props.object;
 
     html! {
-        <div class="card bg-light mb-3 card-pair">
+        <div class="card bg-light mb-3 card-pair" id={format!("card-{}", &pair)}>
             <div class="card-header d-flex justify-content-between align-items-center" style="padding: 0 0 0 16px;">
                 {&pair}
                 <div class="dropdown">
@@ -77,11 +77,12 @@ fn delete(e: SubmitEvent) {
     // TODO: 型はクラサバ共有
     #[derive(Serialize)]
     struct LetterPair { pair: String, }
-    let pair = LetterPair { pair: form_data.get("pair").as_string().unwrap(), };
+    let pair = form_data.get("pair").as_string().unwrap();
+    let data = LetterPair { pair: pair.to_string() };
 
     wasm_bindgen_futures::spawn_local(async move {
         if let Err(_e) = Request::delete("http://localhost:3000/pairs")
-            .json(&pair)
+            .json(&data)
             .unwrap()
             .send()
             .await
@@ -90,7 +91,11 @@ fn delete(e: SubmitEvent) {
         }
     });
 
-    // TODO: レスポンスからカードを削除
+    // カードを削除
+    let document = web_sys::window().unwrap().document().unwrap();
+    document.get_element_by_id(&format!("card-{}", &pair))
+        .unwrap()
+        .remove();
 
     e.prevent_default();
 }
