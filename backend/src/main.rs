@@ -1,18 +1,22 @@
+use std::env;
 use std::net::SocketAddr;
+use std::sync::Arc;
 use axum::{
-    extract::{Json, Multipart},
+    extract::{Json, Multipart, State},
     http::StatusCode,
     middleware::Next,
     response::Response,
     routing::{get, post},
     Router,
 };
+use dotenv::dotenv;
 use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
 use serde::{Deserialize, Serialize};
+use sqlx::mysql::MySqlPool;
 use tower_http::cors::CorsLayer;
 
 /// レターペア管理用構造体
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(sqlx::FromRow, Clone, Debug, Default, Serialize, Deserialize)]
 struct Pair {
     initial: String,
     next: String,
@@ -21,33 +25,48 @@ struct Pair {
 }
 
 /// レターペア一覧の取得
-async fn get_all_pair() -> Json<Vec<Pair>> {
-    let pairs = vec![
-        Pair {
-            initial: "あ".to_string(),
-            next: "い".to_string(),
-            object: "アイス".to_string(),
-            image: "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string(),
-        }
-    ];
+async fn get_all_pair(State(pool): State<Arc<MySqlPool>>) -> Json<Vec<Pair>> {
+    let mut conn = pool.acquire().await.unwrap();
+    let pairs = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs;"#)
+        .fetch_all(&mut conn)
+        .await
+        .unwrap();
     Json(pairs)
 }
 
 /// レターペアの追加
-async fn add_pair(mut multipart: Multipart) -> Json<Pair> {
+async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) -> Json<Pair> {
+    let mut conn = pool.acquire().await.unwrap();
+    let mut data = Pair::default();
     while let Some(field) = multipart.next_field().await.unwrap() {
-        let name = field.name().unwrap().to_string();
-        let data = field.bytes().await.unwrap();
-
-        tracing::info!("Length of `{}` is {} bytes", name, data.len());
+        match &*field.name().unwrap().to_string() {
+            "InputPair" => {
+                let pair = field.text().await.unwrap();
+                let mut pair = pair.chars();
+                data.initial = pair.next().unwrap().to_string();
+                data.next = pair.next().unwrap().to_string();
+            }
+            "InputObject" => {
+                data.object = field.text().await.unwrap();
+            }
+            "InputImage" => {
+                // TODO: 画像をトリミング
+                // TODO: URLを生成
+                // TODO: S3へアップロード
+                data.image = "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string();
+            }
+            _ => unreachable!()
+        }
     }
-    let pairs = Pair {
-        initial: "あ".to_string(),
-        next: "い".to_string(),
-        object: "アイス".to_string(),
-        image: "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string(),
-    };
-    Json(pairs)
+    sqlx::query(r#"INSERT INTO pairs (initial, next, object, image) VALUES (?, ?, ?, ?);"#)
+        .bind(&data.initial)
+        .bind(&data.next)
+        .bind(&data.object)
+        .bind(&data.image)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    Json(data)
 }
 
 /// アクセスログ出力イベントハンドラ
@@ -59,8 +78,20 @@ async fn access_log_on_request<B>(req: Request<B>, next: Next<B>) -> Result<Resp
 
 #[tokio::main]
 async fn main() {
+    // .envファイルの読み込み
+    dotenv().ok();
     // ログ出力情報の初期化
     tracing_subscriber::fmt().init();
+
+    // データベースへ接続
+    let mysql_user     = env::var("MYSQL_USER").unwrap();
+    let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
+    let mysql_database = env::var("MYSQL_DATABASE").unwrap();
+    let database_url = format!("mysql://{mysql_user}:{mysql_password}@localhost:3306/{mysql_database}");
+    let pool = MySqlPool::connect(&database_url).await.unwrap();
+    // テーブル作成、サンプルレコードの登録
+    sqlx::migrate!().run(&pool).await.unwrap();
+
     // ルーティング設定
     let app = Router::new()
         .route("/pairs", get(get_all_pair))
@@ -72,7 +103,8 @@ async fn main() {
                 .allow_methods([Method::GET, Method::POST])
                 .allow_headers([CONTENT_TYPE]),
         )
-        .layer(axum::middleware::from_fn(access_log_on_request));
+        .layer(axum::middleware::from_fn(access_log_on_request))
+        .with_state(Arc::new(pool));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::info!("listening on {}", addr);

@@ -11,6 +11,21 @@ services:
             - network_llp
         ports:
             - "8080:8080"
+    mysql:
+        image: mysql:latest
+        platform: linux/amd64
+        container_name: mysql_llp
+        ports:
+            - "3306:3306"
+        env_file:
+            - ./.env
+        volumes:
+            - mysql_llp:/var/lib/mysql
+        networks:
+            - network_llp
+
+volumes:
+    mysql_llp:
 
 networks:
     network_llp:

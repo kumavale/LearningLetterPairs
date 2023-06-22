@@ -29,7 +29,9 @@ pub fn add_modal() -> Html {
             }
         });
 
-        //e.prevent_default();
+        // TODO: レスポンスからカードを生成して追加
+
+        e.prevent_default();
     });
 
     html! {
@@ -38,7 +40,7 @@ pub fn add_modal() -> Html {
                 <div class="modal-content">
                     <form onsubmit={onsubmit} enctype="multipart/form-data">
                         <div class="modal-header">
-                            <h5 class="modal-title">{"Append Pair"}</h5>
+                            <h5 class="modal-title">{"Add Letter Pair"}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -60,7 +62,7 @@ pub fn add_modal() -> Html {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{"Close"}</button>
-                            <button type="submit" class="btn btn-primary">{"Save changes"}</button>
+                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">{"Add"}</button>
                         </div>
                     </form>
                 </div>

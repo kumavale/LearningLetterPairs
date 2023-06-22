@@ -7,8 +7,10 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.6.18", features = ["multipart"] }
+dotenv = "0.15.0"
 http = "0.2.9"
 serde = { version = "1.0.164", features = ["derive"] }
+sqlx = { version = "0.6.3", features = ["runtime-tokio-native-tls", "mysql"] }
 tokio = { version = "1.28.2", features = ["full"] }
 tower-http = { version = "0.4.1", features = ["full"] }
 tracing = "0.1.37"
