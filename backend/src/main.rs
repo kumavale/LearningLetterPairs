@@ -6,7 +6,7 @@ use axum::{
     http::StatusCode,
     middleware::Next,
     response::Response,
-    routing::{get, post, delete},
+    routing::{get, post, delete, put},
     Router,
 };
 use dotenv::dotenv;
@@ -33,7 +33,8 @@ struct LetterPair {
 /// レターペア一覧の取得
 async fn get_all_pair(State(pool): State<Arc<MySqlPool>>) -> Json<Vec<Pair>> {
     let mut conn = pool.acquire().await.unwrap();
-    let pairs = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs;"#)
+    let pairs = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE id = ?;"#)
+        .bind(0)
         .fetch_all(&mut conn)
         .await
         .unwrap();
@@ -64,7 +65,8 @@ async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) 
             _ => unreachable!()
         }
     }
-    sqlx::query(r#"INSERT INTO pairs (initial, next, object, image) VALUES (?, ?, ?, ?);"#)
+    sqlx::query(r#"INSERT INTO pairs (id, initial, next, object, image) VALUES (?, ?, ?, ?, ?);"#)
+        .bind(0)
         .bind(&data.initial)
         .bind(&data.next)
         .bind(&data.object)
@@ -82,19 +84,60 @@ async fn delete_pair(State(pool): State<Arc<MySqlPool>>, Json(data): Json<Letter
     let initial = pair.next().unwrap().to_string();
     let next = pair.next().unwrap().to_string();
     let mut conn = pool.acquire().await.unwrap();
-    let pair = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE initial = ? AND next = ?;"#)
+    let pair = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#)
+        .bind(0)
         .bind(&initial)
         .bind(&next)
         .fetch_one(&mut conn)
         .await
         .unwrap();
-    sqlx::query(r#"DELETE FROM pairs WHERE initial = ? AND next = ?;"#)
+    sqlx::query(r#"DELETE FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#)
+        .bind(0)
         .bind(&initial)
         .bind(&next)
         .execute(&mut conn)
         .await
         .unwrap();
     Json(pair)
+}
+
+/// レターペアの修正
+async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) -> Json<Pair> {
+    let mut conn = pool.acquire().await.unwrap();
+    let mut data = Pair::default();
+    while let Some(field) = multipart.next_field().await.unwrap() {
+        match &*field.name().unwrap().to_string() {
+            "InputPair" => {
+                let pair = field.text().await.unwrap();
+                let mut pair = pair.chars();
+                data.initial = pair.next().unwrap().to_string();
+                data.next = pair.next().unwrap().to_string();
+            }
+            "InputObject" => {
+                data.object = field.text().await.unwrap();
+            }
+            "InputImage" => {
+                // TODO: 画像データがあるなら:
+                // TODO: 画像をトリミング
+                // TODO: URLを生成
+                // TODO: S3へアップロード
+                data.image = "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string();
+            }
+            _ => unreachable!()
+        }
+    }
+    sqlx::query(r#"UPDATE pairs SET initial = ?, next = ?, object = ?, image = ? WHERE id = ? AND initial = ? AND next = ?;"#)
+        .bind(&data.initial)
+        .bind(&data.next)
+        .bind(&data.object)
+        .bind(&data.image)
+        .bind(0)
+        .bind(&data.initial)
+        .bind(&data.next)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    Json(data)
 }
 
 /// アクセスログ出力イベントハンドラ
@@ -125,11 +168,12 @@ async fn main() {
         .route("/pairs", get(get_all_pair))
         .route("/pairs", post(add_pair))
         .route("/pairs", delete(delete_pair))
+        .route("/pairs", put(update_pair))
         .layer(
             CorsLayer::new()
                 // フロントエンドからの通信を許可
                 .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap())
-                .allow_methods([Method::GET, Method::POST, Method::DELETE])
+                .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::PUT])
                 .allow_headers([CONTENT_TYPE]),
         )
         .layer(axum::middleware::from_fn(access_log_on_request))
