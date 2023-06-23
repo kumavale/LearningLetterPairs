@@ -1,4 +1,5 @@
 use std::env;
+use std::io::Cursor;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use axum::{
@@ -11,6 +12,7 @@ use axum::{
 };
 use dotenv::dotenv;
 use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
+use image::io::Reader as ImageReader;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
 use tower_http::cors::CorsLayer;
@@ -57,10 +59,21 @@ async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) 
                 data.object = field.text().await.unwrap();
             }
             "InputImage" => {
-                // TODO: 画像をトリミング
-                // TODO: URLを生成
-                // TODO: S3へアップロード
-                data.image = "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string();
+                let bytes = field.bytes().await.unwrap();
+                if !bytes.is_empty() {
+                    // 画像へコンバート
+                    let img = ImageReader::new(Cursor::new(bytes))
+                        .with_guessed_format()
+                        .unwrap()
+                        .decode()
+                        .unwrap();
+                    std::fs::create_dir_all("/tmp/llp/kumavale").unwrap();
+                    img.save(format!("/tmp/llp/kumavale/{}{}.png", data.initial, data.next)).unwrap();
+                    // TODO: 画像をトリミング
+                    // TODO: URLを生成
+                    // TODO: S3へアップロード
+                    data.image = "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string();
+                }
             }
             _ => unreachable!()
         }
