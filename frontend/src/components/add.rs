@@ -41,6 +41,8 @@ pub fn add_modal(props: &Props) -> Html {
             {
                 // TODO: POST失敗
             }
+
+            web_sys::window().unwrap().location().reload().ok();
         });
 
         // TODO: レスポンスからカードを生成して追加
@@ -49,7 +51,6 @@ pub fn add_modal(props: &Props) -> Html {
         //}
 
         e.prevent_default();
-        web_sys::window().unwrap().location().reload().ok();
     });
 
     html! {
