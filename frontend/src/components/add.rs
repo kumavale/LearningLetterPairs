@@ -86,7 +86,7 @@ pub fn add_modal(props: &Props) -> Html {
                             <div class="mb-3">
                                 <label for={format!("{id_prefix}InputPair")} class="form-label">{"Pair"}</label>
                                 <input type="text" class="form-control" id={format!("{id_prefix}InputPair")} name="InputPair" placeholder="AB"
-                                    pattern=".{2,2}" title="Please input 2 characters." required=true disabled={is_modify} />
+                                    pattern=".{2,2}" title="Please input 2 characters." required=true readonly={is_modify} />
                             </div>
                             <div class="mb-3">
                                 <label for={format!("{id_prefix}InputObject")} class="form-label">{"Object"}</label>
