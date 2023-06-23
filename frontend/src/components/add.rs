@@ -44,8 +44,12 @@ pub fn add_modal(props: &Props) -> Html {
         });
 
         // TODO: レスポンスからカードを生成して追加
+        //html! {
+        //    <Card pair={format!("{}{}", &pair.initial, &pair.next)} object={pair.object.clone()} img={pair.image.clone()} />
+        //}
 
         e.prevent_default();
+        web_sys::window().unwrap().location().reload().ok();
     });
 
     html! {
