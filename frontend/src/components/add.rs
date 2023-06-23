@@ -1,6 +1,6 @@
 use gloo_net::http::Request;
-use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, HtmlFormElement, FormData};
+use wasm_bindgen::{prelude::Closure, JsCast};
+use web_sys::{EventTarget, HtmlFormElement, HtmlInputElement, FormData};
 use yew::prelude::*;
 use yew::{Callback, Properties};
 
@@ -21,6 +21,26 @@ pub fn add_button() -> Html {
 pub fn add_modal(props: &Props) -> Html {
     let id_prefix = if props.modify { "modify" } else { "add" };
     let is_modify = props.modify;
+
+    // モーダルウィンドウの最初のフォーカスを設定
+    use_effect(move || {
+        let oncustard = Callback::from(move |_: Event| {
+            web_sys::window().unwrap()
+                .document().unwrap()
+                .get_element_by_id(if is_modify { "modifyInputObject" } else { "addInputPair" }).unwrap()
+                .dyn_into::<HtmlInputElement>().unwrap()
+                .focus().unwrap();
+        });
+        let listener =
+            Closure::<dyn Fn(Event)>::wrap(
+                Box::new(move |e: Event| { oncustard.emit(e) })
+            );
+        web_sys::window().unwrap()
+            .document().unwrap()
+            .get_element_by_id(if is_modify { "modify-modal" } else { "add-modal" }).unwrap()
+            .add_event_listener_with_callback("shown.bs.modal", listener.as_ref().unchecked_ref()).unwrap();
+        move || drop(Some(listener))
+    });
 
     let onsubmit = Callback::from(move |e: SubmitEvent| {
         let target: Option<EventTarget> = e.target();
