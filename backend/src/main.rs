@@ -13,6 +13,7 @@ use axum::{
 use dotenv::dotenv;
 use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
 use image::io::Reader as ImageReader;
+use s3::Bucket;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
 use tower_http::cors::CorsLayer;
@@ -62,17 +63,34 @@ async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) 
                 let bytes = field.bytes().await.unwrap();
                 if !bytes.is_empty() {
                     // 画像へコンバート
-                    let img = ImageReader::new(Cursor::new(bytes))
+                    let img = ImageReader::new(Cursor::new(&bytes))
                         .with_guessed_format()
                         .unwrap()
                         .decode()
                         .unwrap();
+                    let filename = format!("{}{}.png", data.initial, data.next);
+                    let local_path = format!("/tmp/llp/kumavale/{filename}");
                     std::fs::create_dir_all("/tmp/llp/kumavale").unwrap();
-                    img.save(format!("/tmp/llp/kumavale/{}{}.png", data.initial, data.next)).unwrap();
+                    img.save(&local_path).unwrap();
                     // TODO: 画像をトリミング
-                    // TODO: URLを生成
                     // TODO: S3へアップロード
-                    data.image = "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string();
+                    let bucket = Bucket::new(
+                        "llp",
+                        s3::region::Region::Custom {
+                            region: "us-west-rack-2".to_owned(),
+                            endpoint: "http://localhost:9000".to_owned(),
+                        },
+                        s3::creds::Credentials::new(
+                            Some("8ZzW3h29GHlem39vsRM6"),
+                            Some("2qrNQY5x5ODkaJPey4DmkCDsfWuyucHhT9VJw3iC"),
+                            None,
+                            None,
+                            None,
+                        ).unwrap(),
+                    ).unwrap();
+                    //bucket.put_object(&format!("llp/kumavale/{filename}"), img.as_bytes()).await.unwrap();
+                    bucket.put_object(&format!("llp/kumavale/{filename}"), &bytes).await.unwrap();
+                    data.image = format!("http://localhost:9000/llp/kumavale/{filename}");
                 }
             }
             _ => unreachable!()
