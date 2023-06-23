@@ -152,26 +152,66 @@ async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipar
                 data.object = field.text().await.unwrap();
             }
             "InputImage" => {
-                // TODO: 画像データがあるなら:
-                // TODO: 画像をトリミング
-                // TODO: URLを生成
-                // TODO: S3へアップロード
-                data.image = "http://127.0.0.1:9000/llp/kumavale/あい.png".to_string();
+                let bytes = field.bytes().await.unwrap();
+                if !bytes.is_empty() {
+                    // 画像へコンバート
+                    let img = ImageReader::new(Cursor::new(&bytes))
+                        .with_guessed_format()
+                        .unwrap()
+                        .decode()
+                        .unwrap();
+                    // 画像をトリミング
+                    let img = img.resize(256, 256, image::imageops::FilterType::Triangle);
+                    // 画像をバイト列へ書き出す
+                    let mut raw = Cursor::new(vec![]);
+                    img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
+                    // S3へアップロード
+                    let filename = format!("{}{}.png", data.initial, data.next);  // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
+                    let bucket = Bucket::new(
+                        "llp",
+                        Region::Custom {
+                            region: "us-west-rack-2".to_owned(),
+                            endpoint: "http://localhost:9000".to_owned(),
+                        },
+                        Credentials::new(
+                            Some("8ZzW3h29GHlem39vsRM6"),
+                            Some("2qrNQY5x5ODkaJPey4DmkCDsfWuyucHhT9VJw3iC"),
+                            None,
+                            None,
+                            None,
+                        ).unwrap(),
+                    ).unwrap();
+                    bucket.put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner()).await.unwrap();
+                    data.image = format!("http://localhost:9000/llp/kumavale/{filename}");
+                }
             }
             _ => unreachable!()
         }
     }
-    sqlx::query(r#"UPDATE pairs SET initial = ?, next = ?, object = ?, image = ? WHERE id = ? AND initial = ? AND next = ?;"#)
-        .bind(&data.initial)
-        .bind(&data.next)
-        .bind(&data.object)
-        .bind(&data.image)
-        .bind(0)
-        .bind(&data.initial)
-        .bind(&data.next)
-        .execute(&mut conn)
-        .await
-        .unwrap();
+    if data.image.is_empty() {
+        sqlx::query(r#"UPDATE pairs SET initial = ?, next = ?, object = ? WHERE id = ? AND initial = ? AND next = ?;"#)
+            .bind(&data.initial)
+            .bind(&data.next)
+            .bind(&data.object)
+            .bind(0)
+            .bind(&data.initial)
+            .bind(&data.next)
+            .execute(&mut conn)
+            .await
+            .unwrap();
+    } else {
+        sqlx::query(r#"UPDATE pairs SET initial = ?, next = ?, object = ?, image = ? WHERE id = ? AND initial = ? AND next = ?;"#)
+            .bind(&data.initial)
+            .bind(&data.next)
+            .bind(&data.object)
+            .bind(&data.image)
+            .bind(0)
+            .bind(&data.initial)
+            .bind(&data.next)
+            .execute(&mut conn)
+            .await
+            .unwrap();
+    }
     Json(data)
 }
 
