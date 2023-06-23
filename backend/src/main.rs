@@ -72,9 +72,11 @@ async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) 
                         .unwrap()
                         .decode()
                         .unwrap();
+                    // 画像をトリミング
+                    let img = img.resize(256, 256, image::imageops::FilterType::Triangle);
+                    // 画像をバイト列へ書き出す
                     let mut raw = Cursor::new(vec![]);
                     img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
-                    // TODO: 画像をトリミング
                     // S3へアップロード
                     let filename = format!("{}{}.png", data.initial, data.next);  // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
                     let bucket = Bucket::new(
