@@ -81,21 +81,24 @@ fn delete(e: SubmitEvent) {
     let data = LetterPair { pair: pair.to_string() };
 
     wasm_bindgen_futures::spawn_local(async move {
-        if let Err(_e) = Request::delete("http://localhost:3000/pairs")
+        match Request::delete("http://localhost:3000/pairs")
             .json(&data)
             .unwrap()
             .send()
             .await
         {
+            // カードを削除
+            Ok(_) => {
+                let document = web_sys::window().unwrap().document().unwrap();
+                document.get_element_by_id(&format!("card-{}", &pair))
+                    .unwrap()
+                    .remove();
+            }
             // TODO: DELETE失敗
+            Err(_e) => {
+            }
         }
     });
-
-    // カードを削除
-    let document = web_sys::window().unwrap().document().unwrap();
-    document.get_element_by_id(&format!("card-{}", &pair))
-        .unwrap()
-        .remove();
 
     e.prevent_default();
 }
