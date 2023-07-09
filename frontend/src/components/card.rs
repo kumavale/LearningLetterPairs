@@ -83,7 +83,7 @@ fn delete(e: SubmitEvent) {
     let data = LetterPair { pair: pair.to_string() };
 
     wasm_bindgen_futures::spawn_local(async move {
-        match Request::delete("http://localhost:3000/pairs")
+        match Request::delete(&format!("{}/pairs", crate::BACKEND_URL))
             .json(&data)
             .unwrap()
             .send()

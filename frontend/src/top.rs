@@ -13,7 +13,7 @@ pub fn top() -> Html {
         let pairs = pairs.clone();
         use_effect_with_deps(move |_| {
             wasm_bindgen_futures::spawn_local(async move {
-                if let Ok(res) = Request::get("http://localhost:3000/pairs").send().await {
+                if let Ok(res) = Request::get(&format!("{}/pairs", crate::BACKEND_URL)).send().await {
                     let fetched_pairs: Vec<Pair> = res.json().await.unwrap();
                     pairs.set(fetched_pairs);
                 } else {

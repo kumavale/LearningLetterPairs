@@ -49,9 +49,9 @@ pub fn add_modal(props: &Props) -> Html {
 
         wasm_bindgen_futures::spawn_local(async move {
             let request = if is_modify {
-                Request::put("http://localhost:3000/pairs")
+                Request::put(&format!("{}/pairs", crate::BACKEND_URL))
             } else {
-                Request::post("http://localhost:3000/pairs")
+                Request::post(&format!("{}/pairs", crate::BACKEND_URL))
             };
             if let Err(_e) = request
                 .body(&form_data)

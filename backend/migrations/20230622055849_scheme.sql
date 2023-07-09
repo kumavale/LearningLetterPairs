@@ -7,3 +7,9 @@ CREATE TABLE IF NOT EXISTS pairs (
     image   TEXT,
     CONSTRAINT PK_pairs PRIMARY KEY (id,initial,next)
 );
+CREATE TABLE IF NOT EXISTS users (
+    id            SERIAL       NOT NULL,
+    username      VARCHAR(32)  NOT NULL,
+    password_hash TEXT         NOT NULL,
+    CONSTRAINT PK_users PRIMARY KEY (username)
+);

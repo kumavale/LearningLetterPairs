@@ -10,6 +10,7 @@ use axum::{
     routing::{get, post, delete, put},
     Router,
 };
+use axum_server::tls_rustls::RustlsConfig;
 use dotenv::dotenv;
 use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
 use image::io::Reader as ImageReader;
@@ -252,11 +253,22 @@ async fn main() {
                 .allow_headers([CONTENT_TYPE]),
         )
         .layer(axum::middleware::from_fn(access_log_on_request))
-        .with_state(Arc::new(pool));
+        .layer(tower_cookies::CookieManagerLayer::new())
+        .with_state(Arc::new(pool))
+        .merge(backend::auth::router());
+
+    let config = RustlsConfig::from_pem_file(
+            "../self-signed-certs/cert.pem",
+            "../self-signed-certs/key.pem",
+        )
+        .await
+        .unwrap();
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::info!("listening on {}", addr);
+
     axum::Server::bind(&addr)
+    //axum_server::bind_rustls(addr, config)
         .serve(app.into_make_service())
         .await
         .unwrap();
