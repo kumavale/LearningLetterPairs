@@ -1,42 +1,18 @@
+use std::sync::Arc;
 use axum::{
-    extract::Json,
+    extract::{Json, State},
     http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
-    routing::post,
-    Router,
 };
 use serde::Deserialize;
-use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
-use tower_http::cors::CorsLayer;
-use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
+use sqlx::mysql::MySqlPool;
+use tower_cookies::{Cookie, Cookies};
+use http::Request;
 use crate::model::Claims;
 
-pub fn router() -> Router {
-    Router::new()
-        .route("/login", post(login_user))
-        .layer(axum::middleware::from_fn(access_log_on_request))
-        .layer(axum::middleware::from_fn(check_login))
-        .layer(CookieManagerLayer::new())
-        .layer(
-            CorsLayer::new()
-                // フロントエンドからの通信を許可
-                .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap())
-                .allow_methods([Method::POST])
-                .allow_headers([CONTENT_TYPE])
-                .allow_credentials(true)
-        )
-}
-
-/// アクセスログ出力イベントハンドラ
-async fn access_log_on_request<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
-    // HTTPメソッド及びURIを出力する
-    tracing::info!("[{}] {}", req.method(), req.uri());
-    Ok(next.run(req).await)
-}
-
 /// ログインチェック
-async fn check_login<B>(cookies: Cookies, req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
+pub async fn auth<B>(cookies: Cookies, req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
     let Some(token) = cookies.get("jwt").map(|t|t.value().to_string()) else {
         return Err(StatusCode::TEMPORARY_REDIRECT);
     };
@@ -51,12 +27,12 @@ async fn check_login<B>(cookies: Cookies, req: Request<B>, next: Next<B>) -> Res
 }
 
 #[derive(Debug, Deserialize)]
-struct Credentials {
+pub struct Credentials {
     username: String,
     password: String,
 }
 
-async fn login_user(cookies: Cookies, credentials: Json<Credentials>) -> impl IntoResponse {
+pub async fn login_user(State(_pool): State<Arc<MySqlPool>>, cookies: Cookies, credentials: Json<Credentials>) -> impl IntoResponse {
     // TODO: パスワードの検証処理を実装する
     let is_valid_user = validate_password(&credentials.username, &credentials.password);
 
