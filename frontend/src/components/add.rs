@@ -1,6 +1,6 @@
 use gloo_net::http::Request;
 use wasm_bindgen::{prelude::Closure, JsCast};
-use web_sys::{EventTarget, HtmlFormElement, HtmlInputElement, FormData};
+use web_sys::{EventTarget, FormData, HtmlFormElement, HtmlInputElement};
 use yew::prelude::*;
 use yew::{Callback, Properties};
 
@@ -25,26 +25,42 @@ pub fn add_modal(props: &Props) -> Html {
     // モーダルウィンドウの最初のフォーカスを設定
     use_effect(move || {
         let oncustard = Callback::from(move |_: Event| {
-            web_sys::window().unwrap()
-                .document().unwrap()
-                .get_element_by_id(if is_modify { "modifyInputObject" } else { "addInputPair" }).unwrap()
-                .dyn_into::<HtmlInputElement>().unwrap()
-                .focus().unwrap();
+            web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .get_element_by_id(if is_modify {
+                    "modifyInputObject"
+                } else {
+                    "addInputPair"
+                })
+                .unwrap()
+                .dyn_into::<HtmlInputElement>()
+                .unwrap()
+                .focus()
+                .unwrap();
         });
-        let listener =
-            Closure::<dyn Fn(Event)>::wrap(
-                Box::new(move |e: Event| { oncustard.emit(e) })
-            );
-        web_sys::window().unwrap()
-            .document().unwrap()
-            .get_element_by_id(if is_modify { "modify-modal" } else { "add-modal" }).unwrap()
-            .add_event_listener_with_callback("shown.bs.modal", listener.as_ref().unchecked_ref()).unwrap();
+        let listener = Closure::<dyn Fn(Event)>::wrap(Box::new(move |e: Event| oncustard.emit(e)));
+        web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .get_element_by_id(if is_modify {
+                "modify-modal"
+            } else {
+                "add-modal"
+            })
+            .unwrap()
+            .add_event_listener_with_callback("shown.bs.modal", listener.as_ref().unchecked_ref())
+            .unwrap();
         move || drop(Some(listener))
     });
 
     let onsubmit = Callback::from(move |e: SubmitEvent| {
         let target: Option<EventTarget> = e.target();
-        let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
+        let form: HtmlFormElement = target
+            .and_then(|t| t.dyn_into::<HtmlFormElement>().ok())
+            .unwrap();
         let form_data = FormData::new_with_form(&form).unwrap();
 
         wasm_bindgen_futures::spawn_local(async move {
@@ -53,12 +69,7 @@ pub fn add_modal(props: &Props) -> Html {
             } else {
                 Request::post(&format!("{}/pairs", crate::BACKEND_URL))
             };
-            if let Err(_e) = request
-                .body(&form_data)
-                .unwrap()
-                .send()
-                .await
-            {
+            if let Err(_e) = request.body(&form_data).unwrap().send().await {
                 // TODO: POST失敗
             }
 

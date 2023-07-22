@@ -14,13 +14,15 @@ use crate::model::Claims;
 /// ログインチェック
 pub async fn auth<B>(cookies: Cookies, req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
     let Some(token) = cookies.get("jwt").map(|t|t.value().to_string()) else {
-        return Err(StatusCode::TEMPORARY_REDIRECT);
+        tracing::info!("not found jwt");
+        return Err(StatusCode::UNAUTHORIZED);
     };
     match validate_token(&token) {
         Ok(_payload) => {
             Ok(next.run(req).await)
         }
         Err(_) => {
+            tracing::info!("failed to validate token");
             Err(StatusCode::UNAUTHORIZED)
         }
     }

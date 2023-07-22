@@ -9,14 +9,17 @@ use axum::{
 };
 use sqlx::mysql::MySqlPool;
 use tower_http::cors::CorsLayer;
-use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
+use http::{
+    header::CONTENT_TYPE,
+    HeaderValue, Method, Request
+};
 use crate::{api, auth};
 
 pub fn create_router(pool: MySqlPool) -> Router {
     let cors = CorsLayer::new()
         // フロントエンドからの通信を許可
         .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::PUT])
+        .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::PUT, Method::OPTIONS])
         .allow_headers([CONTENT_TYPE])
         .allow_credentials(true);
 
@@ -25,9 +28,9 @@ pub fn create_router(pool: MySqlPool) -> Router {
         .route("/pairs", post(api::add_pair))
         .route("/pairs", delete(api::delete_pair))
         .route("/pairs", put(api::update_pair))
+        .layer(axum::middleware::from_fn(auth::auth))
         .route("/login", post(auth::login_user))
         .layer(cors)
-        .layer(axum::middleware::from_fn(auth::auth))
         .layer(axum::middleware::from_fn(access_log_on_request))
         .layer(tower_cookies::CookieManagerLayer::new())
         .with_state(Arc::new(pool))

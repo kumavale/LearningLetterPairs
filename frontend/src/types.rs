@@ -7,4 +7,3 @@ pub struct Pair {
     pub object: String,
     pub image: String,
 }
-

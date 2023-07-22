@@ -1,7 +1,7 @@
 use gloo_net::http::Request;
 use serde::Serialize;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, HtmlFormElement, HtmlInputElement, FormData};
+use web_sys::{EventTarget, FormData, HtmlFormElement, HtmlInputElement};
 use yew::prelude::*;
 use yew::Properties;
 
@@ -52,17 +52,21 @@ pub fn card(props: &Props) -> Html {
 fn modify(e: SubmitEvent) {
     // `value`を書き換える
     let target: Option<EventTarget> = e.target();
-    let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
+    let form: HtmlFormElement = target
+        .and_then(|t| t.dyn_into::<HtmlFormElement>().ok())
+        .unwrap();
     let form_data = FormData::new_with_form(&form).unwrap();
     let pair = form_data.get("pair").as_string().unwrap();
     let object = form_data.get("object").as_string().unwrap();
     let document = web_sys::window().unwrap().document().unwrap();
-    document.get_element_by_id("modifyInputPair")
+    document
+        .get_element_by_id("modifyInputPair")
         .unwrap()
         .dyn_into::<HtmlInputElement>()
         .unwrap()
         .set_value(&pair);
-    document.get_element_by_id("modifyInputObject")
+    document
+        .get_element_by_id("modifyInputObject")
         .unwrap()
         .dyn_into::<HtmlInputElement>()
         .unwrap()
@@ -73,14 +77,20 @@ fn modify(e: SubmitEvent) {
 
 fn delete(e: SubmitEvent) {
     let target: Option<EventTarget> = e.target();
-    let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
+    let form: HtmlFormElement = target
+        .and_then(|t| t.dyn_into::<HtmlFormElement>().ok())
+        .unwrap();
     let form_data = FormData::new_with_form(&form).unwrap();
 
     // TODO: 型はクラサバ共有
     #[derive(Serialize)]
-    struct LetterPair { pair: String, }
+    struct LetterPair {
+        pair: String,
+    }
     let pair = form_data.get("pair").as_string().unwrap();
-    let data = LetterPair { pair: pair.to_string() };
+    let data = LetterPair {
+        pair: pair.to_string(),
+    };
 
     wasm_bindgen_futures::spawn_local(async move {
         match Request::delete(&format!("{}/pairs", crate::BACKEND_URL))
@@ -92,13 +102,13 @@ fn delete(e: SubmitEvent) {
             // カードを削除
             Ok(_) => {
                 let document = web_sys::window().unwrap().document().unwrap();
-                document.get_element_by_id(&format!("card-{}", &pair))
+                document
+                    .get_element_by_id(&format!("card-{}", &pair))
                     .unwrap()
                     .remove();
             }
             // TODO: DELETE失敗
-            Err(_e) => {
-            }
+            Err(_e) => {}
         }
     });
 

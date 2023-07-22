@@ -1,7 +1,7 @@
 use gloo_net::http::Request;
 use serde::Serialize;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, HtmlFormElement, FormData};
+use web_sys::{EventTarget, FormData, HtmlFormElement};
 use yew::prelude::*;
 
 #[derive(Debug, Serialize)]
@@ -14,11 +14,19 @@ struct Credentials {
 pub fn login() -> Html {
     let onsubmit = Callback::from(move |e: SubmitEvent| {
         let target: Option<EventTarget> = e.target();
-        let form: HtmlFormElement = target.and_then(|t| t.dyn_into::<HtmlFormElement>().ok()).unwrap();
+        let form: HtmlFormElement = target
+            .and_then(|t| t.dyn_into::<HtmlFormElement>().ok())
+            .unwrap();
         let form_data = FormData::new_with_form(&form).unwrap();
         let credentials = Credentials {
-            username: form_data.get("input-username").as_string().unwrap_or_default(),
-            password: form_data.get("input-password").as_string().unwrap_or_default(),
+            username: form_data
+                .get("input-username")
+                .as_string()
+                .unwrap_or_default(),
+            password: form_data
+                .get("input-password")
+                .as_string()
+                .unwrap_or_default(),
         };
 
         wasm_bindgen_futures::spawn_local(async move {
