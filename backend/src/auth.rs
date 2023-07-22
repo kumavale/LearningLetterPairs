@@ -5,11 +5,15 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
 use tower_cookies::{Cookie, Cookies};
 use http::Request;
-use crate::model::Claims;
+
+use crate::{
+    crypt,
+    model::Claims,
+};
 
 /// ログインチェック
 pub async fn auth<B>(cookies: Cookies, req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
@@ -34,15 +38,23 @@ pub struct Credentials {
     password: String,
 }
 
-pub async fn login_user(State(_pool): State<Arc<MySqlPool>>, cookies: Cookies, credentials: Json<Credentials>) -> impl IntoResponse {
-    // TODO: パスワードの検証処理を実装する
-    let is_valid_user = validate_password(&credentials.username, &credentials.password);
+#[derive(sqlx::FromRow, Clone, Debug, Default, Serialize, Deserialize)]
+pub struct User {
+    id: u64,
+    username: String,
+    password_hash: String,
+}
 
-    if is_valid_user {
+pub async fn login_user(State(pool): State<Arc<MySqlPool>>, cookies: Cookies, credentials: Json<Credentials>) -> impl IntoResponse {
+    // TODO: パスワードの検証処理を実装する
+    let is_valid_user = validate_password(pool.clone(), &credentials.username, &credentials.password).await;
+
+    if let Some(user) = is_valid_user {
         // JWTの発行とCookieへのセット
         let claims = Claims {
-            name: credentials.username.to_string(),
-            exp: 10000000000,
+            id: user.id,
+            name: user.username.to_string(),
+            exp: 10000000000,  // TODO: 有効期限設定
         };
         let token = jsonwebtoken::encode(
             &jsonwebtoken::Header::default(),
@@ -58,18 +70,37 @@ pub async fn login_user(State(_pool): State<Arc<MySqlPool>>, cookies: Cookies, c
         //jwt.set_http_only(Some(true));
         cookies.add(jwt);
         //Json(token)
+        tracing::info!("Logged in successfully ({})", user.username);
         "Logged in successfully".to_string().into_response()
     } else {
+        tracing::warn!("Invalid credentials");
         "Invalid credentials".to_string().into_response()
         //Json("".to_string())
     }
 }
 
 // パスワードの検証処理
-fn validate_password(_id: &str, _password: &str) -> bool {
-    // TODO: ユーザーのIDとパスワードを検証する処理を実装する
-    // 検証が成功した場合はtrueを返し、そうでなければfalseを返す
-    true
+async fn validate_password(pool: Arc<MySqlPool>, username: &str, password: &str) -> Option<User> {
+    let mut conn = pool.acquire().await.unwrap();
+    // ユーザーを取得
+    let Ok(user) = sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
+        .bind(username)
+        .fetch_one(&mut conn)
+        .await else {
+        // 該当ユーザーが存在しません
+        tracing::warn!("user does not exist: {}", username);
+        return None;
+    };
+
+    // パスワードの検証
+    if let Err(_) = crypt::verify_password(password, &user.password_hash) {
+        //     ^ ここは平文のパスワードが返ってくるので、ログに出力してはいけない
+        // 無効なパスワード
+        tracing::warn!("validate password error: username: {}", user.username);
+        return None;
+    }
+
+    Some(user)
 }
 
 // JWTの検証処理
@@ -79,7 +110,7 @@ fn validate_token(token: &str) -> Result<Claims, ()> {
     match jsonwebtoken::decode::<Claims>(token, &decoding_key, &validation) {
         Ok(token_data) => Ok(token_data.claims),
         Err(e) => {
-            tracing::error!("validate error: {:?}", e);
+            tracing::warn!("validate JWT error: {:?}", e);
             Err(())
         }
     }
