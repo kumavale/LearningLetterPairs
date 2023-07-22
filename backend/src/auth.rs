@@ -53,7 +53,6 @@ pub enum LoginStatus {
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
     status: LoginStatus,
-    id: u64, // TODO: これは要らないかなぁ
     username: String,
 }
 
@@ -90,14 +89,12 @@ pub async fn login_user(
         tracing::info!("Logged in successfully ({})", user.username);
         Json(LoginResponse {
             status: LoginStatus::Success,
-            id: user.id,
             username: user.username,
         })
     } else {
         tracing::warn!("Logged in failed");
         Json(LoginResponse {
             status: LoginStatus::Failed,
-            id: 0,
             username: "".to_string(),
         })
     }
@@ -121,7 +118,6 @@ pub async fn register(
         tracing::warn!("this username is alreadly exist: {}", &credentials.username);
         return Json(LoginResponse {
             status: LoginStatus::Failed,
-            id: 0,
             username: "".to_string(),
         });
     };
@@ -140,7 +136,6 @@ pub async fn register(
         tracing::warn!("failed to register user: {}", &credentials.username);
         return Json(LoginResponse {
             status: LoginStatus::Failed,
-            id: 0,
             username: "".to_string(),
         });
     }
@@ -176,7 +171,6 @@ pub async fn register(
     tracing::info!("Logged in successfully ({})", user.username);
     Json(LoginResponse {
         status: LoginStatus::Success,
-        id: user.id,
         username: user.username,
     })
 }

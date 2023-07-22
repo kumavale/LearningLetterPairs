@@ -17,6 +17,5 @@ pub enum LoginStatus {
 #[derive(Debug, Deserialize)]
 pub struct LoginResponse {
     pub status: LoginStatus,
-    pub id: u64,
     pub username: String,
 }
