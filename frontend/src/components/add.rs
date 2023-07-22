@@ -69,7 +69,11 @@ pub fn add_modal(props: &Props) -> Html {
             } else {
                 Request::post(&format!("{}/pairs", crate::BACKEND_URL))
             };
-            if let Err(_e) = request.body(&form_data).unwrap().send().await {
+            if let Err(_e) = request
+                .credentials(web_sys::RequestCredentials::Include)
+                .body(&form_data)
+                .unwrap()
+                .send().await {
                 // TODO: POST失敗
             }
 

@@ -62,7 +62,6 @@ pub async fn login_user(
     cookies: Cookies,
     credentials: Json<Credentials>,
 ) -> impl IntoResponse {
-    // TODO: パスワードの検証処理を実装する
     let is_valid_user =
         validate_password(pool.clone(), &credentials.username, &credentials.password).await;
 
@@ -80,6 +79,7 @@ pub async fn login_user(
         )
         .unwrap();
 
+        tracing::warn!("login jwt: {}", token);
         let jwt = Cookie::build("jwt", token)
             .path("/")
             .same_site(tower_cookies::cookie::SameSite::None)
@@ -101,6 +101,84 @@ pub async fn login_user(
             username: "".to_string(),
         })
     }
+}
+
+pub async fn register(
+    State(pool): State<Arc<MySqlPool>>,
+    cookies: Cookies,
+    credentials: Json<Credentials>,
+) -> impl IntoResponse {
+    let mut conn = pool.acquire().await.unwrap();
+
+    // ユーザー有無を確認
+    if sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
+        .bind(&credentials.username)
+        .fetch_one(&mut conn)
+        .await
+        .is_ok()
+    {
+        // 該当ユーザーが既に存在します
+        tracing::warn!("this username is alreadly exist: {}", &credentials.username);
+        return Json(LoginResponse {
+            status: LoginStatus::Failed,
+            id: 0,
+            username: "".to_string(),
+        });
+    };
+
+    // パスワードハッシュを生成
+    let password_hash = crypt::compute_password_hash(&credentials.password).unwrap();
+
+    // ユーザーをDBに登録する
+    if sqlx::query(r#"INSERT INTO users (username, password_hash) VALUES (?, ?)"#)
+        .bind(&credentials.username)
+        .bind(&password_hash)
+        .execute(&mut conn)
+        .await
+        .is_err() {
+        // ユーザー登録に失敗
+        tracing::warn!("failed to register user: {}", &credentials.username);
+        return Json(LoginResponse {
+            status: LoginStatus::Failed,
+            id: 0,
+            username: "".to_string(),
+        });
+    }
+
+    // ユーザーを取得
+    let user = sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
+        .bind(&credentials.username)
+        .fetch_one(&mut conn)
+        .await
+        .unwrap();
+
+    // JWTの発行とCookieへのセット
+    let claims = Claims {
+        id: user.id,
+        name: user.username.to_string(),
+        exp: 10000000000, // TODO: 有効期限設定
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret("secret".as_ref()), // JWTのシークレットキー
+    )
+    .unwrap();
+
+    tracing::warn!("register jwt: {}", token);
+    let jwt = Cookie::build("jwt", token)
+        .path("/")
+        .same_site(tower_cookies::cookie::SameSite::None)
+        //.secure(true)
+        //.http_only(true)
+        .finish();
+    cookies.add(jwt);
+    tracing::info!("Logged in successfully ({})", user.username);
+    Json(LoginResponse {
+        status: LoginStatus::Success,
+        id: user.id,
+        username: user.username,
+    })
 }
 
 // パスワードの検証処理

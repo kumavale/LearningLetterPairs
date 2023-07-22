@@ -94,6 +94,7 @@ fn delete(e: SubmitEvent) {
 
     wasm_bindgen_futures::spawn_local(async move {
         match Request::delete(&format!("{}/pairs", crate::BACKEND_URL))
+            .credentials(web_sys::RequestCredentials::Include)
             .json(&data)
             .unwrap()
             .send()

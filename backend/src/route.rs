@@ -33,6 +33,7 @@ pub fn create_router(pool: MySqlPool) -> Router {
         .route("/pairs", put(api::update_pair))
         .layer(axum::middleware::from_fn(auth::auth))
         .route("/login", post(auth::login_user))
+        .route("/register", post(auth::register))
         .layer(cors)
         .layer(axum::middleware::from_fn(access_log_on_request))
         .layer(tower_cookies::CookieManagerLayer::new())
