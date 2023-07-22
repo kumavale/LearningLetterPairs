@@ -1,10 +1,6 @@
 use argon2::{
-    password_hash::{
-        rand_core::OsRng,
-        self, SaltString, PasswordHash, PasswordVerifier,
-    },
-    Argon2,
-    PasswordHasher,
+    password_hash::{self, rand_core::OsRng, PasswordHash, PasswordVerifier, SaltString},
+    Argon2, PasswordHasher,
 };
 
 pub fn compute_password_hash(password: &str) -> Result<String, password_hash::Error> {

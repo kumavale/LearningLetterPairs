@@ -1,25 +1,28 @@
 use std::sync::Arc;
 
+use crate::{api, auth};
 use axum::{
     http::StatusCode,
     middleware::Next,
     response::Response,
-    routing::{get, post, delete, put},
+    routing::{delete, get, post, put},
     Router,
 };
+use http::{header::CONTENT_TYPE, HeaderValue, Method, Request};
 use sqlx::mysql::MySqlPool;
 use tower_http::cors::CorsLayer;
-use http::{
-    header::CONTENT_TYPE,
-    HeaderValue, Method, Request
-};
-use crate::{api, auth};
 
 pub fn create_router(pool: MySqlPool) -> Router {
     let cors = CorsLayer::new()
         // フロントエンドからの通信を許可
         .allow_origin("http://localhost:8080".parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::GET, Method::POST, Method::DELETE, Method::PUT, Method::OPTIONS])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::DELETE,
+            Method::PUT,
+            Method::OPTIONS,
+        ])
         .allow_headers([CONTENT_TYPE])
         .allow_credentials(true);
 

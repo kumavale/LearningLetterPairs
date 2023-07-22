@@ -1,14 +1,13 @@
-use std::io::Cursor;
-use std::sync::Arc;
 use axum::extract::{Json, Multipart, State};
 use image::io::Reader as ImageReader;
-use s3::{
-    Bucket,
-    region::Region,
-    creds::Credentials,
-};
+use s3::{creds::Credentials, region::Region, Bucket};
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
+use std::io::Cursor;
+use std::sync::Arc;
+use tower_cookies::Cookies;
+
+use crate::auth;
 
 /// レターペア管理用構造体
 #[derive(sqlx::FromRow, Clone, Debug, Default, Serialize, Deserialize)]
@@ -26,10 +25,11 @@ pub struct LetterPair {
 }
 
 /// レターペア一覧の取得
-pub async fn get_all_pair(State(pool): State<Arc<MySqlPool>>) -> Json<Vec<Pair>> {
+pub async fn get_all_pair(State(pool): State<Arc<MySqlPool>>, cookies: Cookies) -> Json<Vec<Pair>> {
+    let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
     let mut conn = pool.acquire().await.unwrap();
     let pairs = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE id = ?;"#)
-        .bind(0)
+        .bind(claims.id)
         .fetch_all(&mut conn)
         .await
         .unwrap();
@@ -37,7 +37,12 @@ pub async fn get_all_pair(State(pool): State<Arc<MySqlPool>>) -> Json<Vec<Pair>>
 }
 
 /// レターペアの追加
-pub async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) -> Json<Pair> {
+pub async fn add_pair(
+    State(pool): State<Arc<MySqlPool>>,
+    cookies: Cookies,
+    mut multipart: Multipart,
+) -> Json<Pair> {
+    let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
     let mut conn = pool.acquire().await.unwrap();
     let mut data = Pair::default();
     while let Some(field) = multipart.next_field().await.unwrap() {
@@ -66,7 +71,7 @@ pub async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipa
                     let mut raw = Cursor::new(vec![]);
                     img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
                     // S3へアップロード
-                    let filename = format!("{}{}.png", data.initial, data.next);  // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
+                    let filename = format!("{}{}.png", data.initial, data.next); // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
                     let bucket = Bucket::new(
                         "llp",
                         Region::Custom {
@@ -79,17 +84,22 @@ pub async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipa
                             None,
                             None,
                             None,
-                        ).unwrap(),
-                    ).unwrap();
-                    bucket.put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner()).await.unwrap();
+                        )
+                        .unwrap(),
+                    )
+                    .unwrap();
+                    bucket
+                        .put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner())
+                        .await
+                        .unwrap();
                     data.image = format!("http://localhost:9000/llp/kumavale/{filename}");
                 }
             }
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
     sqlx::query(r#"INSERT INTO pairs (id, initial, next, object, image) VALUES (?, ?, ?, ?, ?);"#)
-        .bind(0)
+        .bind(claims.id)
         .bind(&data.initial)
         .bind(&data.next)
         .bind(&data.object)
@@ -101,21 +111,28 @@ pub async fn add_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipa
 }
 
 /// レターペアの削除
-pub async fn delete_pair(State(pool): State<Arc<MySqlPool>>, Json(data): Json<LetterPair>) -> Json<Pair> {
+pub async fn delete_pair(
+    State(pool): State<Arc<MySqlPool>>,
+    cookies: Cookies,
+    Json(data): Json<LetterPair>,
+) -> Json<Pair> {
+    let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
     tracing::info!("{:?}", &data);
     let mut pair = data.pair.chars();
     let initial = pair.next().unwrap().to_string();
     let next = pair.next().unwrap().to_string();
     let mut conn = pool.acquire().await.unwrap();
-    let pair = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#)
-        .bind(0)
-        .bind(&initial)
-        .bind(&next)
-        .fetch_one(&mut conn)
-        .await
-        .unwrap();
+    let pair = sqlx::query_as::<_, Pair>(
+        r#"SELECT * FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#,
+    )
+    .bind(claims.id)
+    .bind(&initial)
+    .bind(&next)
+    .fetch_one(&mut conn)
+    .await
+    .unwrap();
     sqlx::query(r#"DELETE FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#)
-        .bind(0)
+        .bind(claims.id)
         .bind(&initial)
         .bind(&next)
         .execute(&mut conn)
@@ -125,7 +142,12 @@ pub async fn delete_pair(State(pool): State<Arc<MySqlPool>>, Json(data): Json<Le
 }
 
 /// レターペアの修正
-pub async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Multipart) -> Json<Pair> {
+pub async fn update_pair(
+    State(pool): State<Arc<MySqlPool>>,
+    cookies: Cookies,
+    mut multipart: Multipart,
+) -> Json<Pair> {
+    let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
     let mut conn = pool.acquire().await.unwrap();
     let mut data = Pair::default();
     while let Some(field) = multipart.next_field().await.unwrap() {
@@ -154,7 +176,7 @@ pub async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Mult
                     let mut raw = Cursor::new(vec![]);
                     img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
                     // S3へアップロード
-                    let filename = format!("{}{}.png", data.initial, data.next);  // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
+                    let filename = format!("{}{}.png", data.initial, data.next); // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
                     let bucket = Bucket::new(
                         "llp",
                         Region::Custom {
@@ -167,13 +189,18 @@ pub async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Mult
                             None,
                             None,
                             None,
-                        ).unwrap(),
-                    ).unwrap();
-                    bucket.put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner()).await.unwrap();
+                        )
+                        .unwrap(),
+                    )
+                    .unwrap();
+                    bucket
+                        .put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner())
+                        .await
+                        .unwrap();
                     data.image = format!("http://localhost:9000/llp/kumavale/{filename}");
                 }
             }
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
     if data.image.is_empty() {
@@ -181,7 +208,7 @@ pub async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Mult
             .bind(&data.initial)
             .bind(&data.next)
             .bind(&data.object)
-            .bind(0)
+            .bind(claims.id)
             .bind(&data.initial)
             .bind(&data.next)
             .execute(&mut conn)
@@ -193,7 +220,7 @@ pub async fn update_pair(State(pool): State<Arc<MySqlPool>>, mut multipart: Mult
             .bind(&data.next)
             .bind(&data.object)
             .bind(&data.image)
-            .bind(0)
+            .bind(claims.id)
             .bind(&data.initial)
             .bind(&data.next)
             .execute(&mut conn)
