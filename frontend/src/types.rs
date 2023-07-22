@@ -7,3 +7,16 @@ pub struct Pair {
     pub object: String,
     pub image: String,
 }
+
+#[derive(Debug, Deserialize)]
+pub enum LoginStatus {
+    Success,
+    Failed,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginResponse {
+    pub status: LoginStatus,
+    pub id: u64,
+    pub username: String,
+}

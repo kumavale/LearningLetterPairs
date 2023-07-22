@@ -45,6 +45,19 @@ pub struct User {
     password_hash: String,
 }
 
+#[derive(Debug, Serialize)]
+pub enum LoginStatus {
+    Success,
+    Failed,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LoginResponse {
+    status: LoginStatus,
+    id: u64,
+    username: String,
+}
+
 pub async fn login_user(State(pool): State<Arc<MySqlPool>>, cookies: Cookies, credentials: Json<Credentials>) -> impl IntoResponse {
     // TODO: パスワードの検証処理を実装する
     let is_valid_user = validate_password(pool.clone(), &credentials.username, &credentials.password).await;
@@ -63,19 +76,18 @@ pub async fn login_user(State(pool): State<Arc<MySqlPool>>, cookies: Cookies, cr
         )
         .unwrap();
 
-        let mut jwt = Cookie::new("jwt", token);
-        jwt.set_path("/");
-        jwt.set_same_site(Some(tower_cookies::cookie::SameSite::None));
-        //jwt.set_secure(Some(true));
-        //jwt.set_http_only(Some(true));
+        let jwt = Cookie::build("jwt", token)
+            .path("/")
+            .same_site(tower_cookies::cookie::SameSite::None)
+            //.secure(true)
+            //.http_only(true)
+            .finish();
         cookies.add(jwt);
-        //Json(token)
         tracing::info!("Logged in successfully ({})", user.username);
-        "Logged in successfully".to_string().into_response()
+        Json(LoginResponse { status: LoginStatus::Success, id: user.id, username: user.username })
     } else {
-        tracing::warn!("Invalid credentials");
-        "Invalid credentials".to_string().into_response()
-        //Json("".to_string())
+        tracing::warn!("Logged in failed");
+        Json(LoginResponse { status: LoginStatus::Failed, id: 0, username: "".to_string() })
     }
 }
 
@@ -93,6 +105,7 @@ async fn validate_password(pool: Arc<MySqlPool>, username: &str, password: &str)
     };
 
     // パスワードの検証
+    #[allow(clippy::redundant_pattern_matching)]
     if let Err(_) = crypt::verify_password(password, &user.password_hash) {
         //     ^ ここは平文のパスワードが返ってくるので、ログに出力してはいけない
         // 無効なパスワード

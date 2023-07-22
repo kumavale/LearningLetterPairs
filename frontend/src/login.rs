@@ -4,6 +4,8 @@ use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, FormData, HtmlFormElement};
 use yew::prelude::*;
 
+use crate::types::LoginResponse;
+
 #[derive(Debug, Serialize)]
 struct Credentials {
     username: String,
@@ -43,6 +45,11 @@ pub fn login() -> Html {
                         // ログイン成功
                         200 => {
                             log::info!("login success");
+                            // ローカルストレージにユーザー情報を保持
+                            let res = res.json::<LoginResponse>().await.unwrap();
+                            let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+                            local_storage.set_item("id", &res.id.to_string()).unwrap();
+                            local_storage.set_item("username", &res.username).unwrap();
                             // トップページへ推移
                             web_sys::window().unwrap().location().set_href("/").ok();
                         }
