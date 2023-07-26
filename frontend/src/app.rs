@@ -31,9 +31,12 @@ fn switch(routes: Route) -> Html {
 
 #[function_component(App)]
 pub fn app() -> Html {
+    let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+    let username = local_storage.get("username").unwrap();
+
     html! {
         <>
-        <Header />
+        <Header username={username} />
         <BrowserRouter>
             <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
         </BrowserRouter>
