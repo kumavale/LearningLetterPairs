@@ -1,42 +1,32 @@
-version: '3.7'
-
-x-environment: &environment
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    POSTGRES_HOST: db
-    POSTGRES_PORT: 5432
-    POSTGRES_DATABASE: letterpairs
+version: "3.9"
 
 services:
-    app:
+    frontend:
         build:
             context: .
-        environment: *environment
-        ports:
-            - 8080:80
-        networks:
-            - letterpairs_net
+            dockerfile: ./frontend/Dockerfile
         volumes:
-            - image_volume:/img
-        depends_on:
-            - db
-
-    db:
-        image: postgres:14
-        environment: *environment
-        ports:
-            - 5432:5432
+            - ./frontend:/app/frontend
         networks:
-            - letterpairs_net
+            - network_llp
+        ports:
+            - "8080:8080"
+    mysql:
+        image: mysql:latest
+        platform: linux/amd64
+        container_name: mysql_llp
+        ports:
+            - "3306:3306"
+        env_file:
+            - ./.env
         volumes:
-            - postgres_volume:/var/lib/postgresql/data
-            - ./sql:/docker-entrypoint-initdb.d
-
-networks:
-    letterpairs_net:
-        driver: bridge
+            - mysql_llp:/var/lib/mysql
+        networks:
+            - network_llp
 
 volumes:
-    image_volume:
-        driver: local
-    postgres_volume:
+    mysql_llp:
+
+networks:
+    network_llp:
+        driver: bridge
