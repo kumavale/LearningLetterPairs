@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 argon2 = "0.5.1"
 axum = { version = "0.6.18", features = ["multipart"] }
-axum-server = { version = "0.5.1", features = ["tls-rustls"] }
 dotenv = "0.15.0"
 http = "0.2.9"
 image = "0.24.6"

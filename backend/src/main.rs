@@ -1,4 +1,3 @@
-use axum_server::tls_rustls::RustlsConfig;
 use dotenv::dotenv;
 use sqlx::mysql::MySqlPool;
 use std::env;
@@ -24,20 +23,10 @@ async fn main() {
     // ルーティング設定
     let app = backend::route::create_router(pool);
 
-    // https用の設定
-    #[allow(unused)]
-    let config = RustlsConfig::from_pem_file(
-        "../self-signed-certs/cert.pem",
-        "../self-signed-certs/key.pem",
-    )
-    .await
-    .unwrap();
-
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     tracing::info!("listening on {}", addr);
 
     axum::Server::bind(&addr)
-        //axum_server::bind_rustls(addr, config)
         .serve(app.into_make_service())
         .await
         .unwrap();
