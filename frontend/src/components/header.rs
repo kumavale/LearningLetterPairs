@@ -1,3 +1,5 @@
+use wasm_bindgen::JsCast;
+use web_sys::HtmlDocument;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
@@ -9,8 +11,16 @@ pub struct Props {
 #[function_component(Header)]
 pub fn header(props: &Props) -> Html {
     let foo = if props.username.is_some() {
+        let logout_onclick = Callback::from(move |_| {
+            // Cookie から jwt を削除
+            let document = web_sys::window().unwrap().document().unwrap().dyn_into::<HtmlDocument>().unwrap();
+            document.set_cookie("jwt=; max-age=0").unwrap();
+            log::info!("logout success");
+            // トップページへ推移
+            web_sys::window().unwrap().location().set_href("/").ok();
+        });
         html! {
-            <a class="btn btn-outline-light me-2" href="/logout">{"Logout"}</a>
+            <button class="btn btn-outline-light me-2" onclick={logout_onclick}>{"Logout"}</button>
         }
     } else {
         html! {
