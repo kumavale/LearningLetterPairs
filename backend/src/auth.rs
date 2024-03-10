@@ -24,8 +24,8 @@ pub async fn auth<B>(
     };
     match validate_token(&token) {
         Ok(_payload) => Ok(next.run(req).await),
-        Err(_) => {
-            tracing::info!("failed to validate token");
+        Err(e) => {
+            tracing::info!("failed to validate token: {e}");
             Err(StatusCode::UNAUTHORIZED)
         }
     }
@@ -201,14 +201,11 @@ async fn validate_password(pool: Arc<MySqlPool>, username: &str, password: &str)
 }
 
 // JWTの検証処理
-pub fn validate_token(token: &str) -> Result<Claims, ()> {
+pub fn validate_token(token: &str) -> Result<Claims, String> {
     let decoding_key = jsonwebtoken::DecodingKey::from_secret("secret".as_ref());
     let validation = jsonwebtoken::Validation::default();
     match jsonwebtoken::decode::<Claims>(token, &decoding_key, &validation) {
         Ok(token_data) => Ok(token_data.claims),
-        Err(e) => {
-            tracing::warn!("validate JWT error: {:?}", e);
-            Err(())
-        }
+        Err(e) => Err(format!("validate JWT error: {:?}", e)),
     }
 }
