@@ -1,7 +1,9 @@
 # Learning Letter Pairs
 
 ![stable](https://img.shields.io/badge/build-failed-critical.svg)
-[![license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)  
+
+> [!WARNING]
+> UNDER CONSTRUCTION
 
 This site provides the best content for learning letter pairs.  
 You can specify not only character combinations, but also images.  
@@ -19,8 +21,4 @@ $ docker-compose up --build -d
 ```
 
 Access to `http://localhost:8080` on your browser.
-
-## License
-
- - MIT
 
