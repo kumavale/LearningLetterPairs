@@ -1,4 +1,5 @@
 use axum::{
+    body::Body,
     extract::{Json, State},
     http::StatusCode,
     middleware::Next,
@@ -13,10 +14,10 @@ use tower_cookies::{Cookie, Cookies};
 use crate::{crypt, model::Claims};
 
 /// ログインチェック
-pub async fn auth<B>(
+pub async fn auth(
     cookies: Cookies,
-    req: Request<B>,
-    next: Next<B>,
+    req: Request<Body>,
+    next: Next,
 ) -> Result<Response, StatusCode> {
     let Some(token) = cookies.get("jwt").map(|t| t.value().to_string()) else {
         tracing::info!("not found jwt");
@@ -79,12 +80,12 @@ pub async fn login_user(
         .unwrap();
 
         tracing::warn!("login jwt: {}", token);
-        let jwt = Cookie::build("jwt", token)
+        let jwt = Cookie::build(("jwt", token))
             .path("/")
             .same_site(tower_cookies::cookie::SameSite::None)
             //.secure(true)
             //.http_only(true)
-            .finish();
+            .build();
         cookies.add(jwt);
         tracing::info!("Logged in successfully ({})", user.username);
         Json(LoginResponse {
@@ -162,12 +163,12 @@ pub async fn register(
     .unwrap();
 
     tracing::warn!("register jwt: {}", token);
-    let jwt = Cookie::build("jwt", token)
+    let jwt = Cookie::build(("jwt", token))
         .path("/")
         .same_site(tower_cookies::cookie::SameSite::None)
         //.secure(true)
         //.http_only(true)
-        .finish();
+        .build();
     cookies.add(jwt);
     tracing::info!("Logged in successfully ({})", user.username);
     Json(LoginResponse {
