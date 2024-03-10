@@ -13,7 +13,12 @@ pub fn header(props: &Props) -> Html {
     let loginout = if props.username.is_some() {
         let logout_onclick = Callback::from(move |_| {
             // Cookie から jwt を削除
-            let document = web_sys::window().unwrap().document().unwrap().dyn_into::<HtmlDocument>().unwrap();
+            let document = web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .dyn_into::<HtmlDocument>()
+                .unwrap();
             document.set_cookie("jwt=; max-age=0").unwrap();
             log::info!("logout success");
             // トップページへ推移

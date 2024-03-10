@@ -47,7 +47,8 @@ pub fn login() -> Html {
                             log::info!("login success");
                             // ローカルストレージにユーザー情報を保持
                             let res = res.json::<LoginResponse>().await.unwrap();
-                            let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+                            let local_storage =
+                                web_sys::window().unwrap().local_storage().unwrap().unwrap();
                             local_storage.set_item("username", &res.username).unwrap();
                             // トップページへ推移
                             web_sys::window().unwrap().location().set_href("/").ok();
@@ -142,7 +143,8 @@ pub fn register() -> Html {
                             log::info!("register success");
                             // ローカルストレージにユーザー情報を保持
                             let res = res.json::<LoginResponse>().await.unwrap();
-                            let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+                            let local_storage =
+                                web_sys::window().unwrap().local_storage().unwrap().unwrap();
                             local_storage.set_item("username", &res.username).unwrap();
                             // トップページへ推移
                             web_sys::window().unwrap().location().set_href("/").ok();

@@ -18,7 +18,7 @@ pub async fn auth<B>(
     req: Request<B>,
     next: Next<B>,
 ) -> Result<Response, StatusCode> {
-    let Some(token) = cookies.get("jwt").map(|t|t.value().to_string()) else {
+    let Some(token) = cookies.get("jwt").map(|t| t.value().to_string()) else {
         tracing::info!("not found jwt");
         return Err(StatusCode::UNAUTHORIZED);
     };
@@ -131,7 +131,8 @@ pub async fn register(
         .bind(&password_hash)
         .execute(&mut conn)
         .await
-        .is_err() {
+        .is_err()
+    {
         // ユーザー登録に失敗
         tracing::warn!("failed to register user: {}", &credentials.username);
         return Json(LoginResponse {
@@ -182,7 +183,8 @@ async fn validate_password(pool: Arc<MySqlPool>, username: &str, password: &str)
     let Ok(user) = sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
         .bind(username)
         .fetch_one(&mut conn)
-        .await else {
+        .await
+    else {
         // 該当ユーザーが存在しません
         tracing::warn!("user does not exist: {}", username);
         return None;
