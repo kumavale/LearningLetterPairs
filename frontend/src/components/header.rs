@@ -10,7 +10,7 @@ pub struct Props {
 
 #[function_component(Header)]
 pub fn header(props: &Props) -> Html {
-    let foo = if props.username.is_some() {
+    let loginout = if props.username.is_some() {
         let logout_onclick = Callback::from(move |_| {
             // Cookie から jwt を削除
             let document = web_sys::window().unwrap().document().unwrap().dyn_into::<HtmlDocument>().unwrap();
@@ -33,7 +33,7 @@ pub fn header(props: &Props) -> Html {
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <a class="navbar-brand m-1 ms-4 me-4 h1" href="/">{"Learning Letter Pairs"}</a>
                 <div class="ms-auto d-flex flex-wrap">
-                    { foo }
+                    { loginout }
                 </div>
             </nav>
             //<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
