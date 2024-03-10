@@ -24,7 +24,7 @@ fn switch(routes: Route) -> Html {
         Route::Home => html! { <Top /> },
         Route::Login => html! { <Login /> },
         Route::Register => html! { <Register /> },
-        Route::Terms=> html! { <Terms /> },
+        Route::Terms => html! { <Terms /> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }
 }

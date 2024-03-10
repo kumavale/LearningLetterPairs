@@ -73,7 +73,9 @@ pub fn add_modal(props: &Props) -> Html {
                 .credentials(web_sys::RequestCredentials::Include)
                 .body(&form_data)
                 .unwrap()
-                .send().await {
+                .send()
+                .await
+            {
                 // TODO: POST失敗
             }
 
