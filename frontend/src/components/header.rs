@@ -20,6 +20,9 @@ pub fn header(props: &Props) -> Html {
                 .dyn_into::<HtmlDocument>()
                 .unwrap();
             document.set_cookie("jwt=; max-age=0").unwrap();
+            // ローカルストレージからユーザー情報を削除
+            let local_storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+            local_storage.delete("username").unwrap();
             log::info!("logout success");
             // トップページへ推移
             web_sys::window().unwrap().location().set_href("/").ok();
