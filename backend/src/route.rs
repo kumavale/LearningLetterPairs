@@ -2,8 +2,9 @@ use std::sync::Arc;
 
 use crate::{api, auth};
 use axum::{
+    body::Body,
     http::StatusCode,
-    middleware::Next,
+    middleware::{self, Next},
     response::Response,
     routing::{delete, get, post, put},
     Router,
@@ -31,17 +32,17 @@ pub fn create_router(pool: MySqlPool) -> Router {
         .route("/pairs", post(api::add_pair))
         .route("/pairs", delete(api::delete_pair))
         .route("/pairs", put(api::update_pair))
-        .layer(axum::middleware::from_fn(auth::auth))
+        .layer(middleware::from_fn(auth::auth))
         .route("/login", post(auth::login_user))
         .route("/register", post(auth::register))
         .layer(cors)
-        .layer(axum::middleware::from_fn(access_log_on_request))
+        .layer(middleware::from_fn(access_log_on_request))
         .layer(tower_cookies::CookieManagerLayer::new())
         .with_state(Arc::new(pool))
 }
 
 /// アクセスログ出力イベントハンドラ
-async fn access_log_on_request<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
+async fn access_log_on_request(req: Request<Body>, next: Next) -> Result<Response, StatusCode> {
     // HTTPメソッド及びURIを出力する
     tracing::info!("[{}] {}", req.method(), req.uri());
     Ok(next.run(req).await)

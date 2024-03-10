@@ -1,7 +1,6 @@
 use dotenv::dotenv;
 use sqlx::mysql::MySqlPool;
 use std::env;
-use std::net::SocketAddr;
 
 #[tokio::main]
 async fn main() {
@@ -23,11 +22,8 @@ async fn main() {
     // ルーティング設定
     let app = backend::route::create_router(pool);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    tracing::info!("listening on {}", addr);
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    tracing::info!("listening on {}", listener.local_addr().unwrap());
 
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
