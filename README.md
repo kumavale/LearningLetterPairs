@@ -1,6 +1,6 @@
 # Learning Letter Pairs
 
-![stable](https://img.shields.io/badge/build-failed-critical.svg)
+[![CI](https://github.com/kumavale/LearningLetterPairs/actions/workflows/ci.yml/badge.svg)](https://github.com/kumavale/LearningLetterPairs/actions/workflows/ci.yml)
 
 > [!WARNING]
 > UNDER CONSTRUCTION
