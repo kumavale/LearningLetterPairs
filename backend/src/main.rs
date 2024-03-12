@@ -13,8 +13,9 @@ async fn main() {
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
     let mysql_database = env::var("MYSQL_DATABASE").unwrap();
+    let mysql_host = env::var("MYSQL_HOST").unwrap_or("localhost".to_string());
     let database_url =
-        format!("mysql://{mysql_user}:{mysql_password}@localhost:3306/{mysql_database}");
+        format!("mysql://{mysql_user}:{mysql_password}@{mysql_host}:3306/{mysql_database}");
     let pool = MySqlPool::connect(&database_url).await.unwrap();
     // テーブル作成、サンプルレコードの登録
     sqlx::migrate!().run(&pool).await.unwrap();
