@@ -1,6 +1,20 @@
 version: "3.9"
 
 services:
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        env_file:
+            - ./.env
+        environment:
+            - MYSQL_HOST=mysql
+        networks:
+            - network_llp
+        ports:
+            - "3000:3000"
+        depends_on:
+            - mysql
     frontend:
         build:
             context: .
