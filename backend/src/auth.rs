@@ -13,6 +13,9 @@ use tower_cookies::{Cookie, Cookies};
 
 use crate::{crypt, model::Claims};
 
+/// JWT の有効期限
+pub const EXP_DAYS: i64 = 1;
+
 /// ログインチェック
 pub async fn auth(
     cookies: Cookies,
@@ -67,11 +70,7 @@ pub async fn login_user(
 
     if let Some(user) = is_valid_user {
         // JWTの発行とCookieへのセット
-        let claims = Claims {
-            id: user.id,
-            name: user.username.to_string(),
-            exp: 10000000000, // TODO: 有効期限設定
-        };
+        let claims = Claims::new(user.id, user.username.to_string());
         let token = jsonwebtoken::encode(
             &jsonwebtoken::Header::default(),
             &claims,
@@ -79,7 +78,7 @@ pub async fn login_user(
         )
         .unwrap();
 
-        tracing::warn!("login jwt: {}", token);
+        tracing::info!("login jwt: {}", token);
         let jwt = Cookie::build(("jwt", token))
             .path("/")
             .same_site(tower_cookies::cookie::SameSite::None)
@@ -150,11 +149,7 @@ pub async fn register(
         .unwrap();
 
     // JWTの発行とCookieへのセット
-    let claims = Claims {
-        id: user.id,
-        name: user.username.to_string(),
-        exp: 10000000000, // TODO: 有効期限設定
-    };
+    let claims = Claims::new(user.id, user.username.to_string());
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
         &claims,
