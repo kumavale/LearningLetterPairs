@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 argon2 = "0.5.3"
-axum = { version = "0.7.4", features = ["multipart", "macros"] }
-chrono = { version = "0.4.35", default-features = false, features = ["now"] }
+axum = { version = "0.7.5", features = ["multipart", "macros"] }
+chrono = { version = "0.4.37", default-features = false, features = ["now"] }
 dotenv = "0.15.0"
 http = "1.1.0"
 image = "0.24.9"
@@ -16,7 +16,7 @@ jsonwebtoken = "8.3.0"
 rust-s3 = "0.33.0"
 serde = { version = "1.0.197", features = ["derive"] }
 sqlx = { version = "0.6.3", features = ["runtime-tokio-rustls", "mysql"] }
-tokio = { version = "1.36.0", features = ["full"] }
+tokio = { version = "1.37.0", features = ["full"] }
 tower-cookies = "0.10.0"
 tower-http = { version = "0.5.2", features = ["full"] }
 tracing = "0.1.40"
