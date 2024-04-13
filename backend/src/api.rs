@@ -30,10 +30,9 @@ pub struct LetterPair {
 /// レターペア一覧の取得
 pub async fn get_all_pair(State(pool): State<Arc<MySqlPool>>, cookies: Cookies) -> Json<Vec<Pair>> {
     let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
-    let mut conn = pool.acquire().await.unwrap();
     let pairs = sqlx::query_as::<_, Pair>(r#"SELECT * FROM pairs WHERE id = ?;"#)
         .bind(claims.id)
-        .fetch_all(&mut conn)
+        .fetch_all(&*pool)
         .await
         .unwrap();
     Json(pairs)
@@ -46,7 +45,6 @@ pub async fn add_pair(
     mut multipart: Multipart,
 ) -> Json<Pair> {
     let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
-    let mut conn = pool.acquire().await.unwrap();
     let mut data = Pair::default();
     while let Some(field) = multipart.next_field().await.unwrap() {
         match &*field.name().unwrap().to_string() {
@@ -107,7 +105,7 @@ pub async fn add_pair(
         .bind(&data.next)
         .bind(&data.object)
         .bind(&data.image)
-        .execute(&mut conn)
+        .execute(&*pool)
         .await
         .unwrap();
     Json(data)
@@ -124,21 +122,20 @@ pub async fn delete_pair(
     let mut pair = data.pair.chars();
     let initial = pair.next().unwrap().to_string();
     let next = pair.next().unwrap().to_string();
-    let mut conn = pool.acquire().await.unwrap();
     let pair = sqlx::query_as::<_, Pair>(
         r#"SELECT * FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#,
     )
     .bind(claims.id)
     .bind(&initial)
     .bind(&next)
-    .fetch_one(&mut conn)
+    .fetch_one(&*pool)
     .await
     .unwrap();
     sqlx::query(r#"DELETE FROM pairs WHERE id = ? AND initial = ? AND next = ?;"#)
         .bind(claims.id)
         .bind(&initial)
         .bind(&next)
-        .execute(&mut conn)
+        .execute(&*pool)
         .await
         .unwrap();
     Json(pair)
@@ -151,7 +148,6 @@ pub async fn update_pair(
     mut multipart: Multipart,
 ) -> Json<Pair> {
     let claims = auth::validate_token(cookies.get("jwt").unwrap().value()).unwrap();
-    let mut conn = pool.acquire().await.unwrap();
     let mut data = Pair::default();
     while let Some(field) = multipart.next_field().await.unwrap() {
         match &*field.name().unwrap().to_string() {
@@ -212,7 +208,7 @@ pub async fn update_pair(
             .bind(claims.id)
             .bind(&data.initial)
             .bind(&data.next)
-            .execute(&mut conn)
+            .execute(&*pool)
             .await
             .unwrap();
     } else {
@@ -224,7 +220,7 @@ pub async fn update_pair(
             .bind(claims.id)
             .bind(&data.initial)
             .bind(&data.next)
-            .execute(&mut conn)
+            .execute(&*pool)
             .await
             .unwrap();
     }
