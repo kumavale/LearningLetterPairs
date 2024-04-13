@@ -37,6 +37,16 @@ services:
             - mysql_llp:/var/lib/mysql
         networks:
             - network_llp
+    gcs:
+        image: fsouza/fake-gcs-server:latest
+        container_name: fake-gcs-server
+        ports:
+            - "4443:4443"
+        volumes:
+            - ./tests/data:/data
+        networks:
+            - network_llp
+        command: ["-scheme", "http"]
 
 volumes:
     mysql_llp:

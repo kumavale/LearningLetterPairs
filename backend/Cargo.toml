@@ -10,10 +10,10 @@ argon2 = "0.5.3"
 axum = { version = "0.7.5", features = ["multipart", "macros"] }
 chrono = { version = "0.4.37", default-features = false, features = ["now"] }
 dotenv = "0.15.0"
+google-cloud-storage = "0.16.0"
 http = "1.1.0"
 image = "0.24.9"
 jsonwebtoken = "8.3.0"
-rust-s3 = "0.33.0"
 serde = { version = "1.0.197", features = ["derive"] }
 sqlx = { version = "0.6.3", features = ["runtime-tokio-rustls", "mysql"] }
 tokio = { version = "1.37.0", features = ["full"] }
