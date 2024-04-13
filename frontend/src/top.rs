@@ -11,45 +11,42 @@ pub fn top() -> Html {
     let pairs = use_state(Vec::new);
     {
         let pairs = pairs.clone();
-        use_effect_with_deps(
-            move |_| {
-                wasm_bindgen_futures::spawn_local(async move {
-                    match Request::get(&format!("{}/pairs", crate::BACKEND_URL))
-                        .credentials(web_sys::RequestCredentials::Include)
-                        .send()
-                        .await
-                    {
-                        Ok(res) => {
-                            match res.status() {
-                                // 成功
-                                200 => {
-                                    let fetched_pairs: Vec<Pair> = res.json().await.unwrap();
-                                    pairs.set(fetched_pairs);
-                                }
-                                // 要ログイン
-                                401 => {
-                                    web_sys::window()
-                                        .unwrap()
-                                        .location()
-                                        .set_href("/login")
-                                        .unwrap();
-                                }
-                                // TODO: その他
-                                n => {
-                                    log::error!("error: http status({})", n);
-                                }
+        use_effect_with((), move |_| {
+            wasm_bindgen_futures::spawn_local(async move {
+                match Request::get(&format!("{}/pairs", crate::BACKEND_URL))
+                    .credentials(web_sys::RequestCredentials::Include)
+                    .send()
+                    .await
+                {
+                    Ok(res) => {
+                        match res.status() {
+                            // 成功
+                            200 => {
+                                let fetched_pairs: Vec<Pair> = res.json().await.unwrap();
+                                pairs.set(fetched_pairs);
+                            }
+                            // 要ログイン
+                            401 => {
+                                web_sys::window()
+                                    .unwrap()
+                                    .location()
+                                    .set_href("/login")
+                                    .unwrap();
+                            }
+                            // TODO: その他
+                            n => {
+                                log::error!("error: http status({})", n);
                             }
                         }
-                        Err(e) => {
-                            // TODO: GET失敗
-                            log::error!("{:?}", e);
-                        }
                     }
-                });
-                || ()
-            },
-            (),
-        );
+                    Err(e) => {
+                        // TODO: GET失敗
+                        log::error!("{:?}", e);
+                    }
+                }
+            });
+            || ()
+        });
     }
 
     let pairs: Vec<Html> = pairs.iter()
