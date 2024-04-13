@@ -1,8 +1,11 @@
 use axum::extract::{Json, Multipart, State};
+use google_cloud_storage::client::Client;
+use google_cloud_storage::client::ClientConfig;
+use google_cloud_storage::http::objects::upload::{Media, UploadObjectRequest, UploadType};
 use image::io::Reader as ImageReader;
-use s3::{creds::Credentials, region::Region, Bucket};
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
+use std::borrow::Cow;
 use std::io::Cursor;
 use std::sync::Arc;
 use tower_cookies::Cookies;
@@ -70,29 +73,29 @@ pub async fn add_pair(
                     // 画像をバイト列へ書き出す
                     let mut raw = Cursor::new(vec![]);
                     img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
-                    // S3へアップロード
+                    // GoogleCloud へアップロード
+                    // TODO: ファイル名はハッシュにする
                     let filename = format!("{}{}.png", data.initial, data.next); // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
-                    let bucket = Bucket::new(
-                        "llp",
-                        Region::Custom {
-                            region: "us-west-rack-2".to_owned(),
-                            endpoint: "http://localhost:9000".to_owned(),
-                        },
-                        Credentials::new(
-                            Some("8ZzW3h29GHlem39vsRM6"),
-                            Some("2qrNQY5x5ODkaJPey4DmkCDsfWuyucHhT9VJw3iC"),
-                            None,
-                            None,
-                            None,
+                    let config = ClientConfig {
+                        storage_endpoint: "http://localhost:4443".to_string(),
+                        ..Default::default()
+                    }
+                    .anonymous();
+                    let client = Client::new(config);
+                    let upload_type =
+                        UploadType::Simple(Media::new(Cow::Owned(format!("test/{filename}"))));
+                    // FIXME: "missing field `etag`"
+                    let _uploaded = client
+                        .upload_object(
+                            &UploadObjectRequest {
+                                bucket: "learning-letter-pairs".to_string(),
+                                ..Default::default()
+                            },
+                            raw.into_inner(),
+                            &upload_type,
                         )
-                        .unwrap(),
-                    )
-                    .unwrap();
-                    bucket
-                        .put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner())
-                        .await
-                        .unwrap();
-                    data.image = format!("http://localhost:9000/llp/kumavale/{filename}");
+                        .await;
+                    data.image = format!("http://localhost:4443/download/storage/v1/b/learning-letter-pairs/o/test/{filename}?alt=media");
                 }
             }
             _ => unreachable!(),
@@ -175,29 +178,27 @@ pub async fn update_pair(
                     // 画像をバイト列へ書き出す
                     let mut raw = Cursor::new(vec![]);
                     img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
-                    // S3へアップロード
+                    // GoogleCloud へアップロード
                     let filename = format!("{}{}.png", data.initial, data.next); // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
-                    let bucket = Bucket::new(
-                        "llp",
-                        Region::Custom {
-                            region: "us-west-rack-2".to_owned(),
-                            endpoint: "http://localhost:9000".to_owned(),
-                        },
-                        Credentials::new(
-                            Some("8ZzW3h29GHlem39vsRM6"),
-                            Some("2qrNQY5x5ODkaJPey4DmkCDsfWuyucHhT9VJw3iC"),
-                            None,
-                            None,
-                            None,
+                    let config = ClientConfig {
+                        storage_endpoint: "http://localhost:4443".to_string(),
+                        ..Default::default()
+                    }
+                    .anonymous();
+                    let client = Client::new(config);
+                    let upload_type =
+                        UploadType::Simple(Media::new(Cow::Owned(format!("test/{filename}"))));
+                    let _uploaded = client
+                        .upload_object(
+                            &UploadObjectRequest {
+                                bucket: "learning-letter-pairs".to_string(),
+                                ..Default::default()
+                            },
+                            raw.into_inner(),
+                            &upload_type,
                         )
-                        .unwrap(),
-                    )
-                    .unwrap();
-                    bucket
-                        .put_object(&format!("llp/kumavale/{filename}"), &raw.into_inner())
-                        .await
-                        .unwrap();
-                    data.image = format!("http://localhost:9000/llp/kumavale/{filename}");
+                        .await;
+                    data.image = format!("http://localhost:4443/download/storage/v1/b/learning-letter-pairs/o/test/{filename}?alt=media");
                 }
             }
             _ => unreachable!(),
