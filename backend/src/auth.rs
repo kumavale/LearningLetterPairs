@@ -105,12 +105,10 @@ pub async fn register(
     cookies: Cookies,
     credentials: Json<Credentials>,
 ) -> impl IntoResponse {
-    let mut conn = pool.acquire().await.unwrap();
-
     // ユーザー有無を確認
     if sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
         .bind(&credentials.username)
-        .fetch_one(&mut conn)
+        .fetch_one(&*pool)
         .await
         .is_ok()
     {
@@ -129,7 +127,7 @@ pub async fn register(
     if sqlx::query(r#"INSERT INTO users (username, password_hash) VALUES (?, ?)"#)
         .bind(&credentials.username)
         .bind(&password_hash)
-        .execute(&mut conn)
+        .execute(&*pool)
         .await
         .is_err()
     {
@@ -144,7 +142,7 @@ pub async fn register(
     // ユーザーを取得
     let user = sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
         .bind(&credentials.username)
-        .fetch_one(&mut conn)
+        .fetch_one(&*pool)
         .await
         .unwrap();
 
@@ -174,11 +172,10 @@ pub async fn register(
 
 // パスワードの検証処理
 async fn validate_password(pool: Arc<MySqlPool>, username: &str, password: &str) -> Option<User> {
-    let mut conn = pool.acquire().await.unwrap();
     // ユーザーを取得
     let Ok(user) = sqlx::query_as::<_, User>(r#"SELECT * FROM users WHERE username = ?"#)
         .bind(username)
-        .fetch_one(&mut conn)
+        .fetch_one(&*pool)
         .await
     else {
         // 該当ユーザーが存在しません
