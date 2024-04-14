@@ -1,0 +1,63 @@
+services:
+  utaha:
+    build:
+      context: ./utaha
+      target: develop
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_HOST=mysql
+      - STORAGE_ENDPOINT=http://gcs:4443
+    volumes:
+      - type: bind
+        source: ./utaha
+        target: /app
+    networks:
+      - network-llp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    command: /bin/sh -c "cargo watch -x run"
+  eriri:
+    build:
+      context: .
+      dockerfile: ./eriri/Dockerfile
+    volumes:
+      - type: bind
+        source: ./eriri
+        target: /app
+    networks:
+      - network-llp
+    ports:
+      - "8080:8080"
+    depends_on:
+      - utaha
+      - gcs
+  mysql:
+    image: mysql:latest
+    platform: linux/amd64
+    ports:
+      - "3306:3306"
+    env_file:
+      - ./.env
+    volumes:
+      - mysql-llp:/var/lib/mysql
+    networks:
+      - network-llp
+  gcs:
+    image: fsouza/fake-gcs-server:latest
+    ports:
+      - "4443:4443"
+    volumes:
+      - ./tests/data:/data
+    networks:
+      - network-llp
+    command: ["-scheme", "http"]
+
+volumes:
+  mysql-llp:
+
+networks:
+  network-llp:
+    driver: bridge

@@ -6,6 +6,7 @@ use image::io::Reader as ImageReader;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
 use std::borrow::Cow;
+use std::env;
 use std::io::Cursor;
 use std::sync::Arc;
 use tower_cookies::Cookies;
@@ -74,8 +75,9 @@ pub async fn add_pair(
                     // GoogleCloud へアップロード
                     // TODO: ファイル名はハッシュにする
                     let filename = format!("{}{}.png", data.initial, data.next); // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
+                    let storage_endpoint = env::var("STORAGE_ENDPOINT").unwrap(); // TODO: Stateに保持したい
                     let config = ClientConfig {
-                        storage_endpoint: "http://localhost:4443".to_string(),
+                        storage_endpoint: storage_endpoint.clone(),
                         ..Default::default()
                     }
                     .anonymous();
@@ -93,6 +95,7 @@ pub async fn add_pair(
                             &upload_type,
                         )
                         .await;
+                    // FIXME: コンテナ外からのアクセス方法
                     data.image = format!("http://localhost:4443/download/storage/v1/b/learning-letter-pairs/o/test/{filename}?alt=media");
                 }
             }
@@ -176,8 +179,9 @@ pub async fn update_pair(
                     img.write_to(&mut raw, image::ImageFormat::Png).unwrap();
                     // GoogleCloud へアップロード
                     let filename = format!("{}{}.png", data.initial, data.next); // TODO: 厳密にはここで`InputPair`の情報を得られる保証はない
+                    let storage_endpoint = env::var("STORAGE_ENDPOINT").unwrap(); // TODO: Stateに保持したい
                     let config = ClientConfig {
-                        storage_endpoint: "http://localhost:4443".to_string(),
+                        storage_endpoint: storage_endpoint.clone(),
                         ..Default::default()
                     }
                     .anonymous();
@@ -194,6 +198,7 @@ pub async fn update_pair(
                             &upload_type,
                         )
                         .await;
+                    // FIXME: コンテナ外からのアクセス方法
                     data.image = format!("http://localhost:4443/download/storage/v1/b/learning-letter-pairs/o/test/{filename}?alt=media");
                 }
             }

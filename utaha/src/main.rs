@@ -21,7 +21,7 @@ async fn main() {
     sqlx::migrate!().run(&pool).await.unwrap();
 
     // ルーティング設定
-    let app = backend::route::create_router(pool);
+    let app = utaha::route::create_router(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     tracing::info!("listening on {}", listener.local_addr().unwrap());
