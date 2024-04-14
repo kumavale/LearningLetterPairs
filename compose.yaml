@@ -50,13 +50,15 @@ services:
     ports:
       - "4443:4443"
     volumes:
-      - ./tests/data:/data
+      - /data/learning-letter-pairs
+      - gcs-llp:/storage
     networks:
       - network-llp
     command: ["-scheme", "http"]
 
 volumes:
   mysql-llp:
+  gcs-llp:
 
 networks:
   network-llp:
