@@ -1,56 +1,65 @@
 version: "3.9"
 
 services:
-    backend:
+    utaha:
         build:
-            context: ./backend
-            dockerfile: Dockerfile
+            context: ./utaha
+            target: develop
         env_file:
             - ./.env
         environment:
             - MYSQL_HOST=mysql
+            - STORAGE_ENDPOINT=http://gcs:4443
+        volumes:
+          - type: bind
+            source: ./utaha
+            target: /app
         networks:
-            - network_llp
+            - network-llp
         ports:
             - "3000:3000"
         depends_on:
             - mysql
-    frontend:
+        command: /bin/sh -c "cargo watch -x run"
+    eriri:
         build:
             context: .
-            dockerfile: ./frontend/Dockerfile
+            dockerfile: ./eriri/Dockerfile
         volumes:
-            - ./frontend:/app/frontend
+          - type: bind
+            source: ./eriri
+            target: /app
         networks:
-            - network_llp
+            - network-llp
         ports:
             - "8080:8080"
+        depends_on:
+            - utaha
+            - gcs
     mysql:
         image: mysql:latest
         platform: linux/amd64
-        container_name: mysql_llp
         ports:
             - "3306:3306"
         env_file:
             - ./.env
         volumes:
-            - mysql_llp:/var/lib/mysql
+            - mysql-llp:/var/lib/mysql
         networks:
-            - network_llp
+            - network-llp
     gcs:
         image: fsouza/fake-gcs-server:latest
-        container_name: fake-gcs-server
         ports:
             - "4443:4443"
         volumes:
             - ./tests/data:/data
         networks:
-            - network_llp
+            - network-llp
         command: ["-scheme", "http"]
 
 volumes:
-    mysql_llp:
+    mysql-llp:
 
 networks:
-    network_llp:
+    network-llp:
         driver: bridge
