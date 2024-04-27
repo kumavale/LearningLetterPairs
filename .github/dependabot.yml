@@ -2,6 +2,8 @@ version: 2
 updates:
   - package-ecosystem: "cargo"
     directory: "eriri"
+    schedule:
+      interval: "weekly"
     groups:
       dependencies:
         patterns:
@@ -10,6 +12,8 @@ updates:
       - "kumavale"
   - package-ecosystem: "cargo"
     directory: "utaha"
+    schedule:
+      interval: "weekly"
     groups:
       dependencies:
         patterns:
