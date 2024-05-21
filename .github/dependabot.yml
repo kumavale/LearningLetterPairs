@@ -1,19 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: "cargo"
-    directory: "eriri"
+    directory: "/"
     schedule:
       interval: "weekly"
-    groups:
-      dependencies:
-        patterns:
-          - "*"
-    reviewers:
-      - "kumavale"
-  - package-ecosystem: "cargo"
-    directory: "utaha"
-    schedule:
-      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-patch
     groups:
       dependencies:
         patterns:
