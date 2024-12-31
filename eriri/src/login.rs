@@ -4,7 +4,7 @@ use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, FormData, HtmlFormElement};
 use yew::prelude::*;
 
-use crate::types::LoginResponse;
+use crate::types::{LoginResponse, LoginStatus};
 
 #[derive(Debug, Serialize)]
 struct Credentials {
@@ -42,16 +42,27 @@ pub fn login() -> Html {
             {
                 Ok(res) => {
                     match res.status() {
-                        // ログイン成功
                         200 => {
-                            log::info!("login success");
-                            // ローカルストレージにユーザー情報を保持
                             let res = res.json::<LoginResponse>().await.unwrap();
-                            let local_storage =
-                                web_sys::window().unwrap().local_storage().unwrap().unwrap();
-                            local_storage.set_item("username", &res.username).unwrap();
-                            // トップページへ推移
-                            web_sys::window().unwrap().location().set_href("/").ok();
+                            if res.status == LoginStatus::Success {
+                                // ログイン成功
+                                log::info!("login success");
+                                // ローカルストレージにユーザー情報を保持
+                                let local_storage =
+                                    web_sys::window().unwrap().local_storage().unwrap().unwrap();
+                                local_storage.set_item("username", &res.username).unwrap();
+                                // トップページへ推移
+                                web_sys::window().unwrap().location().set_href("/").ok();
+                            } else {
+                                // ログイン失敗
+                                log::warn!("login failed: {}", res.username);
+                                // ログインページへ推移
+                                web_sys::window()
+                                    .unwrap()
+                                    .location()
+                                    .set_href("/login")
+                                    .ok();
+                            }
                         }
                         // ログイン失敗
                         n => {
@@ -138,18 +149,29 @@ pub fn register() -> Html {
             {
                 Ok(res) => {
                     match res.status() {
-                        // ユーザー作成成功
                         200 => {
-                            log::info!("register success");
-                            // ローカルストレージにユーザー情報を保持
                             let res = res.json::<LoginResponse>().await.unwrap();
-                            let local_storage =
-                                web_sys::window().unwrap().local_storage().unwrap().unwrap();
-                            local_storage.set_item("username", &res.username).unwrap();
-                            // トップページへ推移
-                            web_sys::window().unwrap().location().set_href("/").ok();
+                            if res.status == LoginStatus::Success {
+                                // ユーザー作成成功
+                                log::info!("register success");
+                                // ローカルストレージにユーザー情報を保持
+                                let local_storage =
+                                    web_sys::window().unwrap().local_storage().unwrap().unwrap();
+                                local_storage.set_item("username", &res.username).unwrap();
+                                // トップページへ推移
+                                web_sys::window().unwrap().location().set_href("/").ok();
+                            } else {
+                                // ユーザー作成失敗
+                                log::error!("register failed: {}", res.username);
+                                // ユーザー登録ページへ推移
+                                web_sys::window()
+                                    .unwrap()
+                                    .location()
+                                    .set_href("/register")
+                                    .ok();
+                            }
                         }
-                        // ログイン失敗
+                        // ユーザー作成失敗
                         n => {
                             log::error!("register failed: [{n}]");
                         }
