@@ -8,7 +8,7 @@ pub struct Pair {
     pub image: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, PartialEq, Deserialize)]
 pub enum LoginStatus {
     Success,
     Failed,
