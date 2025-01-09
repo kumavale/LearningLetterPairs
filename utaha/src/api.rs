@@ -2,7 +2,7 @@ use axum::extract::{Json, Multipart, State};
 use google_cloud_storage::client::Client;
 use google_cloud_storage::client::ClientConfig;
 use google_cloud_storage::http::objects::upload::{Media, UploadObjectRequest, UploadType};
-use image::io::Reader as ImageReader;
+use image::ImageReader;
 use serde::{Deserialize, Serialize};
 use sqlx::mysql::MySqlPool;
 use std::borrow::Cow;
