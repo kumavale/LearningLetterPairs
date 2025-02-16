@@ -10,7 +10,7 @@ argon2 = "0.5.3"
 axum = { version = "0.8.1", features = ["multipart", "macros"] }
 chrono = { version = "0.4.38", default-features = false, features = ["now"] }
 dotenv = "0.15.0"
-google-cloud-storage = "0.23.0"
+google-cloud-storage = "0.24.0"
 http = "1.2.0"
 image = "0.25.1"
 jsonwebtoken = "9.3.0"
